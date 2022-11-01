@@ -40,6 +40,7 @@ class Embedder:
                     
         self.embed_fns = embed_fns
         self.out_dim = out_dim
+        print("EMBED FUNCTIONS", self.embed_fns, len(self.embed_fns))
         
     def embed(self, inputs):
         return torch.cat([fn(inputs) for fn in self.embed_fns], -1)
