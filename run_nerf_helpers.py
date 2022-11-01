@@ -32,7 +32,9 @@ class Embedder:
             freq_bands = 2.**torch.linspace(0., max_freq, steps=N_freqs)
         else:
             freq_bands = torch.linspace(2.**0., 2.**max_freq, steps=N_freqs)
-            
+        
+        print("MAX FREQ LOG 2, N_freqs: ", max_freq, N_freqs)
+        print(freq_bands)
         for freq in freq_bands:
             for p_fn in self.kwargs['periodic_fns']:
                 embed_fns.append(lambda x, p_fn=p_fn, freq=freq : p_fn(x * freq))
