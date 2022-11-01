@@ -54,6 +54,7 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
 def batchify_rays(rays_flat, chunk=1024*32, **kwargs):
     """Render rays in smaller minibatches to avoid OOM.
     """
+    print("batchify rays:", rays_flat.shape)
     all_ret = {}
     for i in range(0, rays_flat.shape[0], chunk):
         ret = render_rays(rays_flat[i:i+chunk], **kwargs)
@@ -383,7 +384,9 @@ def render_rays(ray_batch,
 
 #     raw = run_network(pts)
     print("Line 386")
+    print(pts.shape, viewdirs.shape, network_fn)
     raw = network_query_fn(pts, viewdirs, network_fn)
+    print(raw.shape)
     rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
 
     if N_importance > 0:
