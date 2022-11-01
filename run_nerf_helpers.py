@@ -42,7 +42,7 @@ class Embedder:
                     
         self.embed_fns = embed_fns
         self.out_dim = out_dim
-        print("EMBED FUNCTIONS", self.embed_fns, len(self.embed_fns))
+        print("EMBED FUNCTIONS, include input:", len(self.embed_fns), self.kwargs['include_input'])
         print("EMBED VALUES: 1")
         for f in self.embed_fns:
             print(f(1))
