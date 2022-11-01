@@ -53,8 +53,9 @@ class Embedder:
     def embed(self, inputs):
         print("Embedding inputs...")
         print(inputs.shape)
-        print(inputs)
-        return torch.cat([fn(inputs) for fn in self.embed_fns], -1)
+        cat = torch.cat([fn(inputs) for fn in self.embed_fns], -1)
+        print(cat.shape)
+        return cat
 
 
 def get_embedder(multires, i=0):
