@@ -4,7 +4,6 @@ import imageio
 import json
 import random
 import time
-import svox
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -774,7 +773,7 @@ def train():
         print(disp)
         print(acc)
         print(extras)
-        
+
         optimizer.zero_grad()
         img_loss = img2mse(rgb, target_s)
         trans = extras['raw'][...,-1]
