@@ -658,7 +658,7 @@ def train():
                 # render_test switches to test poses
                 images = images[i_test]
             else:
-                # Default is smoother render_poses path
+            # Default is smoother render_poses path
                 images = None
 
             testsavedir = os.path.join(basedir, expname, 'renderonly_{}_{:06d}'.format('test' if args.render_test else 'path', start))
