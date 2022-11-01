@@ -4,6 +4,7 @@ import imageio
 import json
 import random
 import time
+import svox
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -382,6 +383,7 @@ def render_rays(ray_batch,
 
 
 #     raw = run_network(pts)
+    print("Line 386")
     raw = network_query_fn(pts, viewdirs, network_fn)
     rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
 
@@ -639,6 +641,7 @@ def train():
     # Create nerf model
     render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer = create_nerf(args)
     print("render kwargs train", render_kwargs_train)
+    render_kwargs_train['network_query_fn']
     global_step = start
 
     bds_dict = {
@@ -759,10 +762,19 @@ def train():
                 target_s = target[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
 
         #####  Core optimization loop  #####
+        print("Core optimizatino loop")
+        print(H)
+        print(W)
+        print(K)
+        
         rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
                                                 verbose=i < 10, retraw=True,
                                                 **render_kwargs_train)
-
+        print(rgb)
+        print(disp)
+        print(acc)
+        print(extras)
+        
         optimizer.zero_grad()
         img_loss = img2mse(rgb, target_s)
         trans = extras['raw'][...,-1]
