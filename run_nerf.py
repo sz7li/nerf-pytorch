@@ -121,6 +121,7 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
 
     near, far = near * torch.ones_like(rays_d[...,:1]), far * torch.ones_like(rays_d[...,:1])
     rays = torch.cat([rays_o, rays_d, near, far], -1)
+    print("inside render: ")
     print(rays_o.shape)
     print(rays_d.shape)
     print(near, far)
