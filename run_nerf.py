@@ -182,6 +182,9 @@ def create_tree(**kwargs):
     return tree
 
 
+def find_bounds():
+    pass
+
 def create_nerf(args):
     """Instantiate NeRF's MLP model.
     """
@@ -585,7 +588,6 @@ def train():
         images, poses, render_poses, hwf, i_split = load_blender_data(args.datadir, args.half_res, args.testskip)
         print('Loaded blender', images.shape, render_poses.shape, hwf, args.datadir)
         i_train, i_val, i_test = i_split
-
         near = 2.
         far = 6.
 
@@ -628,6 +630,7 @@ def train():
     hwf = [H, W, focal]
 
     if K is None:
+        print("Setting K")
         K = np.array([
             [focal, 0, 0.5*W],
             [0, focal, 0.5*H],
@@ -729,6 +732,16 @@ def train():
 
     # Summary writers
     # writer = SummaryWriter(os.path.join(basedir, 'summaries', expname))
+
+    points = []
+    for i in i_train:
+        im = images[i]
+        pose = poses[i, :3,:4]
+        if N_rand is not None:
+            rays_o, rays_d = get_rays(H, W, K, torch.Tensor(pose))
+            points.append(rays_o[0][0])
+    print(points)
+    return
     
     start = start + 1
     for i in trange(start, N_iters):
