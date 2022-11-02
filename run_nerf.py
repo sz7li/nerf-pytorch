@@ -55,15 +55,16 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
 def batchify_rays(rays_flat, chunk=1024*32, **kwargs):
     """Render rays in smaller minibatches to avoid OOM.
     """
-    print("batchify rays:", rays_flat.shape)
+    print("batchify rays:", rays_flat.shape) # [1024, 11]
     all_ret = {}
     for i in range(0, rays_flat.shape[0], chunk):
         ret = render_rays(rays_flat[i:i+chunk], **kwargs)
+        # render_rays  {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
         for k in ret:
             if k not in all_ret:
                 all_ret[k] = []
             all_ret[k].append(ret[k])
-
+    print("All ret keys: ", all_ret.keys())
     all_ret = {k : torch.cat(all_ret[k], 0) for k in all_ret}
     return all_ret
 
@@ -119,7 +120,7 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
     rays_o = torch.reshape(rays_o, [-1,3]).float()
     rays_d = torch.reshape(rays_d, [-1,3]).float()
 
-    near, far = near * torch.ones_like(rays_d[...,:1]), far * torch.ones_like(rays_d[...,:1])
+    near, far = near * torch.ones_like(rays_d[...,:1]), far * torch.ones_like(rays_d[...,:1]) #[2, ..., 2], [6, ... 6]
     rays = torch.cat([rays_o, rays_d, near, far], -1)
     print("inside render: ")
     print(rays_o.shape)
