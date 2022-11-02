@@ -703,7 +703,6 @@ def train():
         print('done')
         i_batch = 0
 
-    print("Rays _ rgb", rays_rgb.shape)
 
     # Move training data to GPU
     if use_batching:
@@ -777,7 +776,7 @@ def train():
         print(H)
         print(W)
         print(K)
-
+        print("Batch rays shape", batch_rays.shape)
 
         
         rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
