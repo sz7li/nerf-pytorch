@@ -686,6 +686,7 @@ def train():
     # Prepare raybatch tensor if batching random rays
     N_rand = args.N_rand
     use_batching = not args.no_batching
+    print("Use batching: ", use_batching)
     if use_batching:
         # For random ray batching
         print('get rays')
@@ -703,7 +704,7 @@ def train():
         i_batch = 0
 
     print("Rays _ rgb", rays_rgb.shape)
-    
+
     # Move training data to GPU
     if use_batching:
         images = torch.Tensor(images).to(device)
