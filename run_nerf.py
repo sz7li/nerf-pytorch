@@ -403,7 +403,11 @@ def render_rays(ray_batch,
     print("pts[0]", pts[0])
     print("viewdirs[0]", viewdirs[0])
     raw = network_query_fn(pts, viewdirs, network_fn)
-    print("Raw output shape:", raw.shape)
+    print("Raw output shape:", raw.shape) #[1024, 64, 4]
+    raw
+    
+    # if refine then take the raw output and map to voxels
+
     print(raw)
 
 
