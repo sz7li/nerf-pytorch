@@ -295,7 +295,10 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
 
     dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
 
+    print("raw2outputs RGB before sigmoid: ", rgb)
     rgb = torch.sigmoid(raw[...,:3])  # [N_rays, N_samples, 3]
+    print("raw2outputs RGB after sigmoid: ", rgb)
+    
     noise = 0.
     if raw_noise_std > 0.:
         noise = torch.randn(raw[...,3].shape) * raw_noise_std

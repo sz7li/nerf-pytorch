@@ -123,10 +123,7 @@ class NeRF(nn.Module):
                 h = F.relu(h)
 
             rgb = self.rgb_linear(h)
-            print("rgb", rgb)
-            print("alpha", alpha)
             outputs = torch.cat([rgb, alpha], -1)
-            print("outputs", outputs)
         else:
             outputs = self.output_linear(h)
 
