@@ -391,6 +391,8 @@ def render_rays(ray_batch,
     raw = network_query_fn(pts, viewdirs, network_fn)
     print("Raw output shape:", raw.shape)
     print(raw)
+
+
     rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
 
     if N_importance > 0:
@@ -700,6 +702,8 @@ def train():
         print('done')
         i_batch = 0
 
+    print("Rays _ rgb", rays_rgb.shape)
+    
     # Move training data to GPU
     if use_batching:
         images = torch.Tensor(images).to(device)
@@ -772,6 +776,8 @@ def train():
         print(H)
         print(W)
         print(K)
+
+
         
         rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
                                                 verbose=i < 10, retraw=True,
