@@ -388,7 +388,8 @@ def render_rays(ray_batch,
     print(pts[0])
     print(viewdirs[0])
     raw = network_query_fn(pts, viewdirs, network_fn)
-    print(raw.shape)
+    print("Raw output shape:", raw.shape)
+    print(raw)
     rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
 
     if N_importance > 0:
