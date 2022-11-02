@@ -733,16 +733,16 @@ def train():
     # Summary writers
     # writer = SummaryWriter(os.path.join(basedir, 'summaries', expname))
 
-    points = []
+    points = torch.zeros((len(i_train), 3))
     for i in i_train:
         im = images[i]
         pose = poses[i, :3,:4]
         if N_rand is not None:
             rays_o, rays_d = get_rays(H, W, K, torch.Tensor(pose))
-            points.append(rays_o[0][0])
+            points[i] = rays_o[0][0]
     print(points)
     return
-    
+
     start = start + 1
     for i in trange(start, N_iters):
         time0 = time.time()
