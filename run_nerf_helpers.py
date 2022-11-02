@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+import svox
 
 
 # Misc
@@ -10,6 +11,13 @@ img2mse = lambda x, y : torch.mean((x - y) ** 2)
 mse2psnr = lambda x : -10. * torch.log(x) / torch.log(torch.Tensor([10.]))
 to8b = lambda x : (255*np.clip(x,0,1)).astype(np.uint8)
 
+class Octree:
+    def __init__(self, **kwargs):
+        self.tree = svox.N3Tree(data_dim=3, data_format="RGBA",
+                  center=[0.5, 0.5, 0.5], radius=0.5,
+                  N=2, device="cpu",
+                  init_refine=0, depth_limit=10,
+                  extra_data=None)
 
 # Positional encoding (section 5.1)
 class Embedder:

@@ -177,6 +177,11 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
     return rgbs, disps
 
 
+def create_tree(args):
+    tree = Octree(args)
+    return tree
+
+
 def create_nerf(args):
     """Instantiate NeRF's MLP model.
     """
@@ -652,6 +657,9 @@ def train():
     render_kwargs_train['network_query_fn']
     global_step = start
 
+    # Create tree model
+    tree = create_tree(args)
+
     bds_dict = {
         'near' : near,
         'far' : far,
@@ -726,6 +734,20 @@ def train():
     for i in trange(start, N_iters):
         time0 = time.time()
 
+        if i % 1000 == 0:
+
+            # Sample
+
+            # Sample Random rays, and log max density of each voxel, or
+
+            # Sample all of the rays from all traing view
+
+            # Refine the tree
+
+            # Reset the optimizer.
+
+            pass
+
         # Sample random ray batch
         if use_batching:
             # Random over all images
@@ -765,8 +787,9 @@ def train():
 
                 coords = torch.reshape(coords, [-1,2])  # (H * W, 2)
                 select_inds = np.random.choice(coords.shape[0], size=[N_rand], replace=False)  # (N_rand,)
-                print("selected indices", select_inds)
+                print("selected indices", select_inds, select_inds.shape)
                 select_coords = coords[select_inds].long()  # (N_rand, 2)
+                print(select_coords.shape, select_coords)
                 rays_o = rays_o[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
                 rays_d = rays_d[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
                 batch_rays = torch.stack([rays_o, rays_d], 0)
@@ -778,8 +801,8 @@ def train():
         print(W)
         print(K)
         print("Batch rays shape", batch_rays.shape) # [2, 1024, 3]
+        print(rays_o)
 
-        
         rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
                                                 verbose=i < 10, retraw=True,
                                                 **render_kwargs_train)
