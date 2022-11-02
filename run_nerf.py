@@ -177,8 +177,8 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
     return rgbs, disps
 
 
-def create_tree(args):
-    tree = Octree(args)
+def create_tree(**kwargs):
+    tree = Octree(**kwargs)
     return tree
 
 
