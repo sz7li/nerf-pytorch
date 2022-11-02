@@ -733,15 +733,15 @@ def train():
     # Summary writers
     # writer = SummaryWriter(os.path.join(basedir, 'summaries', expname))
 
-    points = torch.zeros((len(i_train), 3))
-    for i in i_train:
-        im = images[i]
-        pose = poses[i, :3,:4]
-        if N_rand is not None:
-            rays_o, rays_d = get_rays(H, W, K, torch.Tensor(pose))
-            points[i] = rays_o[0][0]
-    print(points)
-    return
+    def get_bounding_box(images, poses, train_size):
+        points = torch.zeros((train_size, 3))
+        for i in len(train_size):
+            im = images[i]
+            pose = poses[i, :3,:4]
+            if N_rand is not None:
+                rays_o, rays_d = get_rays(H, W, K, torch.Tensor(pose))
+                points[i] = rays_o[0][0]
+        return points
 
     start = start + 1
     for i in trange(start, N_iters):
@@ -784,8 +784,6 @@ def train():
 
             if N_rand is not None:
                 rays_o, rays_d = get_rays(H, W, K, torch.Tensor(pose))  # (H, W, 3), (H, W, 3)
-                print("rays_o before selecting, ", rays_o)
-                print("rays_d before selecting, ", rays_d)
                 if i < args.precrop_iters:
                     dH = int(H//2 * args.precrop_frac)
                     dW = int(W//2 * args.precrop_frac)
@@ -808,6 +806,7 @@ def train():
                 rays_d = rays_d[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
                 batch_rays = torch.stack([rays_o, rays_d], 0)
                 target_s = target[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
+                print("target_s :", target_s)
 
         #####  Core optimization loop  #####
         print(f"Core optimizatino loop for iteration {i}")
