@@ -391,8 +391,8 @@ def render_rays(ray_batch,
 #     raw = run_network(pts)
     print("Line 386")
     print(pts.shape, viewdirs.shape)
-    print(pts[0])
-    print(viewdirs[0])
+    print("pts[0]", pts[0])
+    print("viewdirs[0]", viewdirs[0])
     raw = network_query_fn(pts, viewdirs, network_fn)
     print("Raw output shape:", raw.shape)
     print(raw)
@@ -796,12 +796,12 @@ def train():
                 target_s = target[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
 
         #####  Core optimization loop  #####
-        print("Core optimizatino loop")
+        print(f"Core optimizatino loop for iteration {i}")
         print(H)
         print(W)
         print(K)
         print("Batch rays shape", batch_rays.shape) # [2, 1024, 3]
-        print(rays_o)
+        print(rays_o, rays_o.shape)
 
         rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
                                                 verbose=i < 10, retraw=True,
