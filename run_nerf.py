@@ -776,7 +776,7 @@ def train():
         print(H)
         print(W)
         print(K)
-        print("Batch rays shape", batch_rays.shape)
+        print("Batch rays shape", batch_rays.shape) # [2, 1024, 3]
 
         
         rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
