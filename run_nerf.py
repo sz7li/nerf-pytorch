@@ -658,7 +658,7 @@ def train():
     global_step = start
 
     # Create tree model
-    tree = create_tree(args)
+    tree = create_tree()
 
     bds_dict = {
         'near' : near,
