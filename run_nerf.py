@@ -771,7 +771,8 @@ def train():
 
             if N_rand is not None:
                 rays_o, rays_d = get_rays(H, W, K, torch.Tensor(pose))  # (H, W, 3), (H, W, 3)
-
+                print("rays_o before selecting, ", rays_o)
+                print("rays_d before selecting, ", rays_d)
                 if i < args.precrop_iters:
                     dH = int(H//2 * args.precrop_frac)
                     dW = int(W//2 * args.precrop_frac)
@@ -802,6 +803,8 @@ def train():
         print(K)
         print("Batch rays shape", batch_rays.shape) # [2, 1024, 3]
         print(rays_o, rays_o.shape)
+        print(rays_d, rays_d.shape)
+        # rays_0 is [1024, 3] but are all the same
 
         rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
                                                 verbose=i < 10, retraw=True,
