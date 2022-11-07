@@ -35,7 +35,7 @@ def set_values_for_tree(pts, densities, tree):
     # node ids [0,0,0,4,4,6,6]
     new_max_densities = torch.zeros(len(unique_ids))
     for i, unique_id in enumerate(unique_ids):
-        new_max_densities[i] = torch.max(densities[node_ids == unique_id])
+        new_max_densities[i] = torch.max(densities[0][node_ids == unique_id])
     corners = tree.corners[unique_ids]
     print(corners)
     print(unique_ids)
