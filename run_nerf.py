@@ -750,7 +750,7 @@ def train():
 
     def get_bounding_box(images, poses, train_size):
         points = torch.zeros((train_size, 3))
-        for i in len(train_size):
+        for i in range(train_size):
             im = images[i]
             pose = poses[i, :3,:4]
             if N_rand is not None:
