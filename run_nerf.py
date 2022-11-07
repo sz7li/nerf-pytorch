@@ -31,7 +31,6 @@ def set_values_for_tree(pts, densities, tree):
 
     for i, ray in enumerate(pts):
         values, node_ids = tree.forward(ray, want_node_ids=True)
-        print(node_ids)
         unique_ids = torch.unique(node_ids)
         # node ids [0,0,0,4,4,6,6]
         new_max_densities = torch.zeros(len(unique_ids))
