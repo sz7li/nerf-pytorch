@@ -795,7 +795,9 @@ def train():
     for i in trange(start, N_iters):
         time0 = time.time()
 
-        if i % 1000 == 0:
+        if i % 100 == 0:
+            print(f"Saving tree at iteration {i}")
+            tree.save(f"tree_iter_{i}.npz")
 
             # Sample
 
