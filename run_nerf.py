@@ -26,7 +26,8 @@ np.random.seed(0)
 DEBUG = False
 
 def set_values_for_tree(pts, densities, tree):
-    print(tree[:])
+    print("SETTING VALUES FOR TREE")
+    print(pts.shape, densities.shape)
     for i, pt in enumerate(pts):
         tree[pt] = torch.max(tree[pt], densities[i])
 
