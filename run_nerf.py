@@ -35,7 +35,7 @@ def set_values_for_tree(pts, densities, tree):
             new_max_densities[i] = torch.max(densities[i][node_ids == unique_id]).detach().clone()
         corners = tree.corners[unique_ids]
         tree.set(corners, new_max_densities.reshape(len(new_max_densities), 1))
-    print(unique_ids, new_max_densities)
+    print("Set nodes to densities: ", unique_ids, new_max_densities)
 
 
 def batchify(fn, chunk):
@@ -786,6 +786,7 @@ def train():
     radius = np.sqrt(np.sum((bbox[0] - bbox[1]) ** 2) / 2) / 2
     # Create tree model
     tree = create_tree(center, radius)
+    tree[0].refine()
     
     render_kwargs_train['tree'] = tree
     print("render kwargs train", render_kwargs_train)
