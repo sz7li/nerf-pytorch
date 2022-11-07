@@ -28,8 +28,9 @@ DEBUG = False
 def set_values_for_tree(pts, densities, tree):
     print("SETTING VALUES FOR TREE")
     print(pts.shape, densities.shape)
-    for i, pt in enumerate(pts):
-        tree[pt] = torch.max(tree[pt], densities[i])
+    for ith_ray, ray in enumerate(pts):
+        for i, pt in enumerate(ray):
+            tree[pt] = torch.max(tree[pt], densities[ith_ray][i])
 
 def batchify(fn, chunk):
     """Constructs a version of 'fn' that applies to smaller batches.
