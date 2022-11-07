@@ -758,6 +758,10 @@ def train():
                 points[i] = rays_o[0][0]
         return points
 
+    p = get_bounding_box(images, poses, len(i_train)) # ray point origins
+    bbox = np.asarray([[min(p[:, 0]), min(p[:, 1]), min(p[:, 2])], [max(p[:, 0]), max(p[:, 1]), max(p[:, 2])]])
+    print("BBOX: ", bbox)
+
     start = start + 1
     for i in trange(start, N_iters):
         time0 = time.time()
