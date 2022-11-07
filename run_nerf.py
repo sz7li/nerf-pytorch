@@ -782,6 +782,9 @@ def train():
     bbox = np.asarray([[min(p[:, 0]), min(p[:, 1]), min(p[:, 2])], [max(p[:, 0]), max(p[:, 1]), max(p[:, 2])]])
     print("BBOX: ", bbox)
 
+    # save points
+    np.savez("positions_mic.npz", p=p)
+
     center = np.mean(bbox, axis=0)
     radius = np.sqrt(np.sum((bbox[0] - bbox[1]) ** 2) / 2) / 2
     # Create tree model
