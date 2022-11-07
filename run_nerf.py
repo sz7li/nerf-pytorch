@@ -28,6 +28,7 @@ DEBUG = False
 def set_values_for_tree(pts, densities, tree):
     print("SETTING VALUES FOR TREE")
     print(pts.shape, densities.shape)
+    pts.to(device)
     for ith_ray, ray in enumerate(pts):
         for i, pt in enumerate(ray):
             print(pt, densities[ith_ray][i], tree[pt])
