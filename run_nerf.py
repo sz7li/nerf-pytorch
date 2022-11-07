@@ -762,8 +762,7 @@ def train():
 
     center = np.mean(bbox, axis=0)
     dist = scipy.spatial.distance.cdist(bbox[0:1], bbox[1:])[0][0]
-    radius = dist / 2
-
+    radius = np.sqrt(np.sum((bbox[0] - bbox[1]) ** 2) / 2) / 2
     # Create tree model
     tree = create_tree(center, radius)
     print(tree.corners)
