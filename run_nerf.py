@@ -799,7 +799,7 @@ def train():
 
             print(f"Saving tree at iteration {i}")
             print("Before refine: ", len(tree))
-            tree.to("cpu")
+            # tree.to("cpu")
             tree[tree.corners[(tree.values > 100).reshape(len(tree))]].refine()
             print("After refine: ", len(tree))
             tree.save(f"tree_iter_{i}.npz")
