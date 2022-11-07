@@ -30,7 +30,7 @@ def set_values_for_tree(pts, densities, tree):
     print(pts.shape, densities.shape)
     for ith_ray, ray in enumerate(pts):
         for i, pt in enumerate(ray):
-            print(pt, densities[ith_ray][i])
+            print(pt, densities[ith_ray][i], tree[pt])
             tree[pt] = torch.max(tree[pt], densities[ith_ray][i])
 
 def batchify(fn, chunk):
