@@ -405,16 +405,16 @@ def render_rays(ray_batch,
 
 #     raw = run_network(pts)
     print("Line 386")
-    print(pts.shape, viewdirs.shape)
+    print(pts.shape, viewdirs.shape) # [1024, 64, 3], [1024, 3]
     print("pts[0]", pts[0])
     print("viewdirs[0]", viewdirs[0])
     raw = network_query_fn(pts, viewdirs, network_fn)
     print("Raw output shape:", raw.shape) #[1024, 64, 4]
-
-    print(raw)
-
+    print("N IMPORTANCE IS ", N_importance)
 
     rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+    # rgb_map [num_rays, 3]
+    # raw2outputs accumulates and sums the pts passed in 
     # tree.set(pts, raw[rgb], raw[densities])
     # if refine then take the raw output and map to voxels
     
