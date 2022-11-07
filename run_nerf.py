@@ -199,6 +199,7 @@ def create_tree(center, radius):
                   N=2, device=device,
                   init_refine=0, depth_limit=10,
                   extra_data=None)
+    tree.to("cuda")
     print("CREATED TREE: ", tree.cuda())
     print(device)
     return tree
