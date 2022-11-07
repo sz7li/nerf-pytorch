@@ -295,9 +295,12 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
 
     dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
 
-    print("raw2outputs RGB before sigmoid: ", raw[...,:3])
     rgb = torch.sigmoid(raw[...,:3])  # [N_rays, N_samples, 3]
-    print("raw2outputs RGB after sigmoid: ", rgb)
+    raw_densities = F.relu(raw[...,3])
+
+    print("RGB values: ", rgb.shape)
+    print("RAW DENSITIES ", raw_densities.shape)
+    # return rgb, raw_densities
     
     noise = 0.
     if raw_noise_std > 0.:
@@ -407,15 +410,14 @@ def render_rays(ray_batch,
     print("viewdirs[0]", viewdirs[0])
     raw = network_query_fn(pts, viewdirs, network_fn)
     print("Raw output shape:", raw.shape) #[1024, 64, 4]
-    raw
-    
-    # if refine then take the raw output and map to voxels
 
     print(raw)
 
 
     rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
-
+    # tree.set(pts, raw[rgb], raw[densities])
+    # if refine then take the raw output and map to voxels
+    
     if N_importance > 0:
 
         rgb_map_0, disp_map_0, acc_map_0 = rgb_map, disp_map, acc_map
