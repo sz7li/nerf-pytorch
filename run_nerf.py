@@ -30,6 +30,7 @@ def set_values_for_tree(pts, densities, tree):
     print(pts.shape, densities.shape)
     for ith_ray, ray in enumerate(pts):
         for i, pt in enumerate(ray):
+            print(pt, densities[ith_ray][i])
             tree[pt] = torch.max(tree[pt], densities[ith_ray][i])
 
 def batchify(fn, chunk):
@@ -193,7 +194,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
 def create_tree(center, radius):
     tree = svox.N3Tree(data_dim=1, data_format="RGBA",
                   center=center, radius=radius,
-                  N=2, device="cpu",
+                  N=2, device=device,
                   init_refine=0, depth_limit=10,
                   extra_data=None)
     return tree
