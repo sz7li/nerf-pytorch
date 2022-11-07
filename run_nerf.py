@@ -28,7 +28,7 @@ DEBUG = False
 def set_values_for_tree(pts, densities, tree):
     print("SETTING VALUES FOR TREE")
     print(pts.get_device(), densities.get_device(), torch.cuda.get_device_name(0))
-    print(tree[pts])
+    print(tree.forward(pts))
     for ith_ray, ray in enumerate(pts):
         for i, pt in enumerate(ray):
             print(pt, densities[ith_ray][i], tree[pt])
