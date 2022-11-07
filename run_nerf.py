@@ -195,10 +195,10 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
 def create_tree(center, radius):
     tree = svox.N3Tree(data_dim=1, data_format="RGBA",
                   center=center, radius=radius,
-                  N=2, device=device,
+                  N=2, device="cuda",
                   init_refine=0, depth_limit=10,
                   extra_data=None)
-    tree.cuda()
+    print(tree.cuda())
     return tree
 
 
