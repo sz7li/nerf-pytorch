@@ -852,7 +852,7 @@ def train():
         # rays_0 is [1024, 3] but are all the same
 
         rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
-                                                verbose=i < 10, retraw=True,
+                                                verbose=i < 10, retraw=True, tree=tree
                                                 **render_kwargs_train)
         print(rgb.shape)
         print(disp.shape)
