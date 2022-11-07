@@ -28,13 +28,19 @@ DEBUG = False
 def set_values_for_tree(pts, densities, tree):
     print("SETTING VALUES FOR TREE")
     print(pts.get_device(), densities.get_device(), torch.cuda.get_device_name(0))
-    tree_values = tree.forward(pts[0])
-    print(pts[0][0], pts[0][-1])
-    print(tree.forward(pts[0], want_node_ids=True))
-    for ith_ray, ray in enumerate(pts):
-        for i, pt in enumerate(ray):
-            print(pt, densities[ith_ray][i], tree[pt])
-            tree[pt] = torch.max(tree[pt], densities[ith_ray][i])
+    values, node_ids = tree.forward(pts[0])
+    print(node_ids)
+    unique_ids = torch.unique(node_ids)
+    # node ids [0,0,0,4,4,6,6]
+    new_max_densities = torch.zeros(len(unique_ids))
+    for i, unique_id in enumerate(unique_ids):
+        new_max_densities[i] = torch.max(densities[node_ids == unique_id])
+    corners = tree.corners[unique_ids]
+    print(corners)
+    print(unique_ids)
+    print(new_max_densities)
+    tree.set(corners, new_max_densities.reshape(len(new_max_densities), 1))
+
 
 def batchify(fn, chunk):
     """Constructs a version of 'fn' that applies to smaller batches.
