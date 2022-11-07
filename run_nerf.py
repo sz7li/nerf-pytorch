@@ -9,6 +9,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from tqdm import tqdm, trange
+import scipy
 
 import matplotlib.pyplot as plt
 
@@ -183,7 +184,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
     return rgbs, disps
 
 
-def create_tree(**kwargs):
+def create_tree(center, radius):
     tree = Octree()
     return tree
 
@@ -675,9 +676,6 @@ def train():
     render_kwargs_train['network_query_fn']
     global_step = start
 
-    # Create tree model
-    tree = create_tree()
-
     bds_dict = {
         'near' : near,
         'far' : far,
@@ -761,6 +759,15 @@ def train():
     p = get_bounding_box(images, poses, len(i_train)).cpu() # ray point origins
     bbox = np.asarray([[min(p[:, 0]), min(p[:, 1]), min(p[:, 2])], [max(p[:, 0]), max(p[:, 1]), max(p[:, 2])]])
     print("BBOX: ", bbox)
+
+    center = np.mean(bbox, axis=0)
+    dist = scipy.spatial.distance.cdist(bbox[0:1], bbox[1:])[0][0]
+    radius = dist / 2
+
+    # Create tree model
+    tree = create_tree(center, radius)
+    print(tree.corners)
+    return
 
     start = start + 1
     for i in trange(start, N_iters):

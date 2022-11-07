@@ -12,9 +12,9 @@ mse2psnr = lambda x : -10. * torch.log(x) / torch.log(torch.Tensor([10.]))
 to8b = lambda x : (255*np.clip(x,0,1)).astype(np.uint8)
 
 class Octree:
-    def __init__(self, **kwargs):
+    def __init__(self, center, radius):
         self.tree = svox.N3Tree(data_dim=3, data_format="RGBA",
-                  center=[0.5, 0.5, 0.5], radius=0.5,
+                  center=center, radius=radius,
                   N=2, device="cpu",
                   init_refine=0, depth_limit=10,
                   extra_data=None)
