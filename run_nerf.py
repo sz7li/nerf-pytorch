@@ -26,9 +26,6 @@ np.random.seed(0)
 DEBUG = False
 
 def set_values_for_tree(pts, densities, tree):
-    print("SETTING VALUES FOR TREE")
-    print(pts.get_device(), densities.get_device(), torch.cuda.get_device_name(0))
-
     for i, ray in enumerate(pts):
         values, node_ids = tree.forward(ray, want_node_ids=True)
         unique_ids = torch.unique(node_ids)
@@ -141,7 +138,7 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
     print("inside render: ")
     print(rays_o.shape)
     print(rays_d.shape)
-    print(near, far)
+    # print(near, far)
 
     if use_viewdirs:
         rays = torch.cat([rays, viewdirs], -1)
@@ -203,7 +200,7 @@ def create_tree(center, radius):
     tree = svox.N3Tree(data_dim=1, data_format="RGBA",
                   center=center, radius=radius,
                   N=2, device=device,
-                  init_refine=0, depth_limit=10,
+                  init_refine=1, depth_limit=10,
                   extra_data=None)
     tree.to("cuda")
     print("CREATED TREE: ", tree.cuda())
@@ -430,7 +427,7 @@ def render_rays(ray_batch,
 #     raw = run_network(pts)
     print("Line 386")
     print(pts.shape, viewdirs.shape) # [1024, 64, 3], [1024, 3]
-    print("pts[0]", pts[0])
+    # print("pts[0]", pts[0])
     print("viewdirs[0]", viewdirs[0])
     raw = network_query_fn(pts, viewdirs, network_fn)
     print("Raw output shape:", raw.shape) #[1024, 64, 4]
@@ -862,8 +859,8 @@ def train():
         print(W)
         print(K)
         print("Batch rays shape", batch_rays.shape) # [2, 1024, 3]
-        print(rays_o, rays_o.shape)
-        print(rays_d, rays_d.shape)
+        # print(rays_o, rays_o.shape) # all the same
+        # print(rays_d, rays_d.shape)
         # rays_0 is [1024, 3] but are all the same
 
         rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
