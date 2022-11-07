@@ -200,10 +200,12 @@ def create_tree(center, radius):
     tree = svox.N3Tree(data_dim=1, data_format="RGBA",
                   center=center, radius=radius,
                   N=2, device=device,
-                  init_refine=1, depth_limit=10,
+                  init_refine=0, depth_limit=10,
                   extra_data=None)
     tree.to("cuda")
-    print("CREATED TREE: ", tree.cuda())
+    for i in range(8):
+        tree[i].refine()
+    print("CREATED TREE: ", len(tree))
     print(device)
     return tree
 
