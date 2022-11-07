@@ -25,6 +25,10 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 np.random.seed(0)
 DEBUG = False
 
+def set_values_for_tree(pts, densities, tree):
+    print(tree[:])
+    for i, pt in enumerate(pts):
+        tree[pt] = torch.max(tree[pt], densities[i])
 
 def batchify(fn, chunk):
     """Constructs a version of 'fn' that applies to smaller batches.
@@ -185,7 +189,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
 
 
 def create_tree(center, radius):
-    tree = svox.N3Tree(data_dim=4, data_format="RGBA",
+    tree = svox.N3Tree(data_dim=1, data_format="RGBA",
                   center=center, radius=radius,
                   N=2, device="cuda",
                   init_refine=0, depth_limit=10,
@@ -329,7 +333,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     if white_bkgd:
         rgb_map = rgb_map + (1.-acc_map[...,None])
 
-    return rgb_map, disp_map, acc_map, weights, depth_map
+    return rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, rgb
 
 
 def render_rays(ray_batch,
@@ -344,7 +348,8 @@ def render_rays(ray_batch,
                 white_bkgd=False,
                 raw_noise_std=0.,
                 verbose=False,
-                pytest=False):
+                pytest=False,
+                tree=None):
     """Volumetric rendering.
     Args:
       ray_batch: array of shape [batch_size, ...]. All information necessary
@@ -417,7 +422,7 @@ def render_rays(ray_batch,
     print("Raw output shape:", raw.shape) #[1024, 64, 4]
     print("N IMPORTANCE IS ", N_importance)
 
-    rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+    rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, raw_rgb = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
     # rgb_map [num_rays, 3]
     # raw2outputs accumulates and sums the pts passed in 
     # tree.set(pts, raw[rgb], raw[densities])
@@ -438,7 +443,8 @@ def render_rays(ray_batch,
 #         raw = run_network(pts, fn=run_fn)
         raw = network_query_fn(pts, viewdirs, run_fn)
         print("Additional samplings along ray")
-        rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+        rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, rgb = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+        set_values_for_tree(pts, raw_densities, tree)
 
     ret = {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
     if retraw:
@@ -714,7 +720,7 @@ def train():
     # Prepare raybatch tensor if batching random rays
     N_rand = args.N_rand
     use_batching = not args.no_batching
-    print("Use batching: ", use_batching)
+    print("Use batching: ", use_batching) #default false
     if use_batching:
         # For random ray batching
         print('get rays')
@@ -769,7 +775,6 @@ def train():
     # Create tree model
     tree = create_tree(center, radius)
     print(tree.corners)
-    return
 
     start = start + 1
     for i in trange(start, N_iters):
