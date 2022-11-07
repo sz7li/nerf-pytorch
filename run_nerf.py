@@ -28,7 +28,8 @@ DEBUG = False
 def set_values_for_tree(pts, densities, tree):
     print("SETTING VALUES FOR TREE")
     print(pts.get_device(), densities.get_device(), torch.cuda.get_device_name(0))
-    values, node_ids = tree.forward(pts[0])
+
+    values, node_ids = tree.forward(pts[0], want_node_ids=True)
     print(node_ids)
     unique_ids = torch.unique(node_ids)
     # node ids [0,0,0,4,4,6,6]
