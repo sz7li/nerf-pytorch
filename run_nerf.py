@@ -682,8 +682,7 @@ def train():
 
     # Create nerf model
     render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer = create_nerf(args)
-    print("render kwargs train", render_kwargs_train)
-    render_kwargs_train['network_query_fn']
+
     global_step = start
 
     bds_dict = {
@@ -774,7 +773,9 @@ def train():
     radius = np.sqrt(np.sum((bbox[0] - bbox[1]) ** 2) / 2) / 2
     # Create tree model
     tree = create_tree(center, radius)
-    print(tree.corners)
+    
+    render_kwargs_train['tree'] = tree
+    print("render kwargs train", render_kwargs_train)
 
     start = start + 1
     for i in trange(start, N_iters):
@@ -852,7 +853,7 @@ def train():
         # rays_0 is [1024, 3] but are all the same
 
         rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
-                                                verbose=i < 10, retraw=True, tree=tree
+                                                verbose=i < 10, retraw=True,
                                                 **render_kwargs_train)
         print(rgb.shape)
         print(disp.shape)
