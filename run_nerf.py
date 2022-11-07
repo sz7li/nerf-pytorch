@@ -788,8 +788,8 @@ def train():
     center = np.mean(bbox, axis=0)
     radius = np.sqrt(np.sum((bbox[0] - bbox[1]) ** 2) / 2) / 2
     # Create tree model
-    # tree = create_tree(center, radius)
-    tree = np.load("tree_iter_9725.npz")
+    tree = create_tree(center, radius)
+    tree = tree.load("tree_iter_9725.npz")
     tree.to("cuda")
     
     render_kwargs_train['tree'] = tree
