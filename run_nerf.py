@@ -26,10 +26,11 @@ np.random.seed(0)
 DEBUG = False
 
 def set_values_for_tree(pts, densities, tree):
+    # 1024, 64, 3
     for i, ray in enumerate(pts):
         values, node_ids = tree.forward(ray, want_node_ids=True)
         unique_ids = torch.unique(node_ids)
-        # node ids [0,0,0,4,4,6,6]
+        # node ids [0,...,0,4, ..., 4,6, ..., 6]
         new_max_densities = torch.zeros(len(unique_ids))
         for i, unique_id in enumerate(unique_ids):
             new_max_densities[i] = torch.max(densities[i][node_ids == unique_id]).detach().clone()
@@ -440,6 +441,11 @@ def render_rays(ray_batch,
     # raw2outputs accumulates and sums the pts passed in 
     # tree.set(pts, raw[rgb], raw[densities])
     # if refine then take the raw output and map to voxels
+
+
+    # TODO
+    # Update tree while training while also encode rgb feature into each octree voxel
+
     
     if N_importance > 0:
 

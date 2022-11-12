@@ -28,9 +28,9 @@ rot_theta = lambda th : torch.Tensor([
 
 def pose_spherical(theta, phi, radius):
     c2w = trans_t(radius)
-    c2w = rot_phi(phi/180.*np.pi) @ c2w
-    c2w = rot_theta(theta/180.*np.pi) @ c2w
-    c2w = torch.Tensor(np.array([[-1,0,0,0],[0,0,1,0],[0,1,0,0],[0,0,0,1]])) @ c2w
+    c2w = (rot_phi(phi/180.*np.pi) @ c2w)
+    c2w = (rot_theta(theta/180.*np.pi) @ c2w)
+    c2w = (torch.Tensor(np.array([[-1,0,0,0],[0,0,1,0],[0,1,0,0],[0,0,0,1]])) @ c2w)
     return c2w
 
 
@@ -53,7 +53,7 @@ def load_blender_data(basedir, half_res=False, testskip=1):
         else:
             skip = testskip
             
-        for frame in meta['frames'][::skip]:
+        for i, frame in enumerate(meta['frames'][::skip]):
             fname = os.path.join(basedir, frame['file_path'] + '.png')
             imgs.append(imageio.imread(fname))
             poses.append(np.array(frame['transform_matrix']))
@@ -84,9 +84,13 @@ def load_blender_data(basedir, half_res=False, testskip=1):
             imgs_half_res[i] = cv2.resize(img, (W, H), interpolation=cv2.INTER_AREA)
         imgs = imgs_half_res
         # imgs = tf.image.resize_area(imgs, [400, 400]).numpy()
-        
+    print(len(poses))
+    print(poses[0])
+    # each pose is  is 4x4
+    
+    print(len(render_poses))
     return imgs, poses, render_poses, [H, W, focal], i_split
 
 
 if __name__ == '__main__':
-    load_blender_data('data/nerf_synthetic/lego', half_res=True)
+    load_blender_data('data/nerf_synthetic/lego', half_res=True, testskip=10)
