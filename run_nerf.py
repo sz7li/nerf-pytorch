@@ -4,10 +4,12 @@ import imageio
 import json
 import random
 import time
+import svox
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from tqdm import tqdm, trange
+import scipy
 
 import matplotlib.pyplot as plt
 
@@ -22,6 +24,18 @@ from load_LINEMOD import load_LINEMOD_data
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 np.random.seed(0)
 DEBUG = False
+
+def set_values_for_tree(pts, densities, tree):
+    for i, ray in enumerate(pts):
+        values, node_ids = tree.forward(ray, want_node_ids=True)
+        unique_ids = torch.unique(node_ids)
+        # node ids [0,0,0,4,4,6,6]
+        new_max_densities = torch.zeros(len(unique_ids))
+        for i, unique_id in enumerate(unique_ids):
+            new_max_densities[i] = torch.max(densities[i][node_ids == unique_id]).detach().clone()
+        corners = tree.corners[unique_ids]
+        tree.set(corners, new_max_densities.reshape(len(new_max_densities), 1))
+    print("Set nodes to densities: ", unique_ids, new_max_densities)
 
 
 def batchify(fn, chunk):
@@ -54,14 +68,16 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
 def batchify_rays(rays_flat, chunk=1024*32, **kwargs):
     """Render rays in smaller minibatches to avoid OOM.
     """
+    print("batchify rays:", rays_flat.shape) # [1024, 11]
     all_ret = {}
     for i in range(0, rays_flat.shape[0], chunk):
         ret = render_rays(rays_flat[i:i+chunk], **kwargs)
+        # render_rays  {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
         for k in ret:
             if k not in all_ret:
                 all_ret[k] = []
             all_ret[k].append(ret[k])
-
+    print("All ret keys: ", all_ret.keys())
     all_ret = {k : torch.cat(all_ret[k], 0) for k in all_ret}
     return all_ret
 
@@ -117,8 +133,13 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
     rays_o = torch.reshape(rays_o, [-1,3]).float()
     rays_d = torch.reshape(rays_d, [-1,3]).float()
 
-    near, far = near * torch.ones_like(rays_d[...,:1]), far * torch.ones_like(rays_d[...,:1])
+    near, far = near * torch.ones_like(rays_d[...,:1]), far * torch.ones_like(rays_d[...,:1]) #[2, ..., 2], [6, ... 6]
     rays = torch.cat([rays_o, rays_d, near, far], -1)
+    print("inside render: ")
+    print(rays_o.shape)
+    print(rays_d.shape)
+    # print(near, far)
+
     if use_viewdirs:
         rays = torch.cat([rays, viewdirs], -1)
 
@@ -174,6 +195,23 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
 
     return rgbs, disps
 
+
+def create_tree(center, radius):
+    tree = svox.N3Tree(data_dim=1, data_format="RGBA",
+                  center=center, radius=radius,
+                  N=2, device="cpu",
+                  init_refine=1, depth_limit=10,
+                  extra_data=None)
+    # tree.to("cuda")
+    # for i in range(8):
+    #     tree[i].refine()
+    print("CREATED TREE: ", len(tree))
+    print(device)
+    return tree
+
+
+def find_bounds():
+    pass
 
 def create_nerf(args):
     """Instantiate NeRF's MLP model.
@@ -280,6 +318,12 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
 
     rgb = torch.sigmoid(raw[...,:3])  # [N_rays, N_samples, 3]
+    raw_densities = F.relu(raw[...,3])
+
+    print("RGB values: ", rgb.shape)
+    print("RAW DENSITIES ", raw_densities.shape)
+    # return rgb, raw_densities
+    
     noise = 0.
     if raw_noise_std > 0.:
         noise = torch.randn(raw[...,3].shape) * raw_noise_std
@@ -302,7 +346,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     if white_bkgd:
         rgb_map = rgb_map + (1.-acc_map[...,None])
 
-    return rgb_map, disp_map, acc_map, weights, depth_map
+    return rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, rgb
 
 
 def render_rays(ray_batch,
@@ -317,7 +361,8 @@ def render_rays(ray_batch,
                 white_bkgd=False,
                 raw_noise_std=0.,
                 verbose=False,
-                pytest=False):
+                pytest=False,
+                tree=None):
     """Volumetric rendering.
     Args:
       ray_batch: array of shape [batch_size, ...]. All information necessary
@@ -382,9 +427,20 @@ def render_rays(ray_batch,
 
 
 #     raw = run_network(pts)
+    print("Line 386")
+    print(pts.shape, viewdirs.shape) # [1024, 64, 3], [1024, 3]
+    # print("pts[0]", pts[0])
+    print("viewdirs[0]", viewdirs[0])
     raw = network_query_fn(pts, viewdirs, network_fn)
-    rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+    print("Raw output shape:", raw.shape) #[1024, 64, 4]
+    print("N IMPORTANCE IS ", N_importance)
 
+    rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, raw_rgb = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+    # rgb_map [num_rays, 3]
+    # raw2outputs accumulates and sums the pts passed in 
+    # tree.set(pts, raw[rgb], raw[densities])
+    # if refine then take the raw output and map to voxels
+    
     if N_importance > 0:
 
         rgb_map_0, disp_map_0, acc_map_0 = rgb_map, disp_map, acc_map
@@ -399,8 +455,9 @@ def render_rays(ray_batch,
         run_fn = network_fn if network_fine is None else network_fine
 #         raw = run_network(pts, fn=run_fn)
         raw = network_query_fn(pts, viewdirs, run_fn)
-
-        rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+        print("Additional samplings along ray")
+        rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, rgb = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+        set_values_for_tree(pts, raw_densities, tree)
 
     ret = {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
     if retraw:
@@ -521,7 +578,7 @@ def config_parser():
                         help='frequency of console printout and metric loggin')
     parser.add_argument("--i_img",     type=int, default=500, 
                         help='frequency of tensorboard image logging')
-    parser.add_argument("--i_weights", type=int, default=10000, 
+    parser.add_argument("--i_weights", type=int, default=500, 
                         help='frequency of weight ckpt saving')
     parser.add_argument("--i_testset", type=int, default=50000, 
                         help='frequency of testset saving')
@@ -570,7 +627,6 @@ def train():
         images, poses, render_poses, hwf, i_split = load_blender_data(args.datadir, args.half_res, args.testskip)
         print('Loaded blender', images.shape, render_poses.shape, hwf, args.datadir)
         i_train, i_val, i_test = i_split
-
         near = 2.
         far = 6.
 
@@ -613,6 +669,7 @@ def train():
     hwf = [H, W, focal]
 
     if K is None:
+        print("Setting K")
         K = np.array([
             [focal, 0, 0.5*W],
             [0, focal, 0.5*H],
@@ -638,6 +695,7 @@ def train():
 
     # Create nerf model
     render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer = create_nerf(args)
+
     global_step = start
 
     bds_dict = {
@@ -658,7 +716,7 @@ def train():
                 # render_test switches to test poses
                 images = images[i_test]
             else:
-                # Default is smoother render_poses path
+            # Default is smoother render_poses path
                 images = None
 
             testsavedir = os.path.join(basedir, expname, 'renderonly_{}_{:06d}'.format('test' if args.render_test else 'path', start))
@@ -674,6 +732,7 @@ def train():
     # Prepare raybatch tensor if batching random rays
     N_rand = args.N_rand
     use_batching = not args.no_batching
+    print("Use batching: ", use_batching) #default false
     if use_batching:
         # For random ray batching
         print('get rays')
@@ -690,6 +749,7 @@ def train():
         print('done')
         i_batch = 0
 
+
     # Move training data to GPU
     if use_batching:
         images = torch.Tensor(images).to(device)
@@ -698,7 +758,8 @@ def train():
         rays_rgb = torch.Tensor(rays_rgb).to(device)
 
 
-    N_iters = 200000 + 1
+    # N_iters = 200000 + 1
+    N_iters = 200000
     print('Begin')
     print('TRAIN views are', i_train)
     print('TEST views are', i_test)
@@ -706,10 +767,56 @@ def train():
 
     # Summary writers
     # writer = SummaryWriter(os.path.join(basedir, 'summaries', expname))
+
+    def get_bounding_box(images, poses, train_size):
+        points = torch.zeros((train_size, 3))
+        for i in range(train_size):
+            im = images[i]
+            pose = poses[i, :3,:4]
+            if N_rand is not None:
+                rays_o, rays_d = get_rays(H, W, K, torch.Tensor(pose))
+                points[i] = rays_o[0][0]
+        return points
+
+    p = get_bounding_box(images, poses, len(i_train)).cpu() # ray point origins
+    bbox = np.asarray([[min(p[:, 0]), min(p[:, 1]), min(p[:, 2])], [max(p[:, 0]), max(p[:, 1]), max(p[:, 2])]])
+    print("BBOX: ", bbox)
+
+    # save points
+    np.savez("positions_mic.npz", p=p)
+
+    center = np.mean(bbox, axis=0)
+    radius = np.sqrt(np.sum((bbox[0] - bbox[1]) ** 2) / 2) / 2
+    # Create tree model
+    tree = create_tree(center, radius)
+    tree = tree.load("tree_iter_9725.npz")
+    tree.to("cuda")
     
+    render_kwargs_train['tree'] = tree
+    print("render kwargs train", render_kwargs_train)
+
     start = start + 1
     for i in trange(start, N_iters):
         time0 = time.time()
+
+        if i % 25 == 0:
+
+            print(f"Saving tree at iteration {i}")
+            print("Before refine: ", len(tree))
+            # tree.to("cpu")
+            tree[tree.corners[(tree.values > 100).reshape(len(tree))]].refine()
+            print("After refine: ", len(tree))
+            tree.save(f"tree_iter_{i}.npz")
+
+            # Sample
+
+            # Sample Random rays, and log max density of each voxel, or
+
+            # Sample all of the rays from all traing view
+
+            # Refine the tree
+
+            # Reset the optimizer.
 
         # Sample random ray batch
         if use_batching:
@@ -734,7 +841,6 @@ def train():
 
             if N_rand is not None:
                 rays_o, rays_d = get_rays(H, W, K, torch.Tensor(pose))  # (H, W, 3), (H, W, 3)
-
                 if i < args.precrop_iters:
                     dH = int(H//2 * args.precrop_frac)
                     dW = int(W//2 * args.precrop_frac)
@@ -750,16 +856,32 @@ def train():
 
                 coords = torch.reshape(coords, [-1,2])  # (H * W, 2)
                 select_inds = np.random.choice(coords.shape[0], size=[N_rand], replace=False)  # (N_rand,)
+                print("selected indices", select_inds, select_inds.shape)
                 select_coords = coords[select_inds].long()  # (N_rand, 2)
+                print(select_coords.shape, select_coords)
                 rays_o = rays_o[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
                 rays_d = rays_d[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
                 batch_rays = torch.stack([rays_o, rays_d], 0)
                 target_s = target[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
+                print("target_s :", target_s)
 
         #####  Core optimization loop  #####
+        print(f"Core optimizatino loop for iteration {i}")
+        print(H)
+        print(W)
+        print(K)
+        print("Batch rays shape", batch_rays.shape) # [2, 1024, 3]
+        # print(rays_o, rays_o.shape) # all the same
+        # print(rays_d, rays_d.shape)
+        # rays_0 is [1024, 3] but are all the same
+
         rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
                                                 verbose=i < 10, retraw=True,
                                                 **render_kwargs_train)
+        print(rgb.shape)
+        print(disp.shape)
+        print(acc.shape)
+        print(extras.keys())
 
         optimizer.zero_grad()
         img_loss = img2mse(rgb, target_s)

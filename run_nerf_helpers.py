@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+import svox
 
 
 # Misc
@@ -10,6 +11,13 @@ img2mse = lambda x, y : torch.mean((x - y) ** 2)
 mse2psnr = lambda x : -10. * torch.log(x) / torch.log(torch.Tensor([10.]))
 to8b = lambda x : (255*np.clip(x,0,1)).astype(np.uint8)
 
+class Octree:
+    def __init__(self, center, radius):
+        self.tree = svox.N3Tree(data_dim=3, data_format="RGBA",
+                  center=center, radius=radius,
+                  N=2, device="cpu",
+                  init_refine=0, depth_limit=10,
+                  extra_data=None)
 
 # Positional encoding (section 5.1)
 class Embedder:
@@ -32,7 +40,9 @@ class Embedder:
             freq_bands = 2.**torch.linspace(0., max_freq, steps=N_freqs)
         else:
             freq_bands = torch.linspace(2.**0., 2.**max_freq, steps=N_freqs)
-            
+        
+        print("MAX FREQ LOG 2, N_freqs: ", max_freq, N_freqs)
+        print(freq_bands)
         for freq in freq_bands:
             for p_fn in self.kwargs['periodic_fns']:
                 embed_fns.append(lambda x, p_fn=p_fn, freq=freq : p_fn(x * freq))
@@ -40,9 +50,10 @@ class Embedder:
                     
         self.embed_fns = embed_fns
         self.out_dim = out_dim
-        
+
     def embed(self, inputs):
-        return torch.cat([fn(inputs) for fn in self.embed_fns], -1)
+        cat = torch.cat([fn(inputs) for fn in self.embed_fns], -1)
+        return cat
 
 
 def get_embedder(multires, i=0):
@@ -159,6 +170,7 @@ def get_rays(H, W, K, c2w):
     rays_d = torch.sum(dirs[..., np.newaxis, :] * c2w[:3,:3], -1)  # dot product, equals to: [c2w.dot(dir) for dir in dirs]
     # Translate camera frame's origin to the world frame. It is the origin of all rays.
     rays_o = c2w[:3,-1].expand(rays_d.shape)
+    print("Get rays rays_o and rays_d shape", rays_o.shape, rays_d.shape)
     return rays_o, rays_d
 
 

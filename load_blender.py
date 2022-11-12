@@ -84,8 +84,9 @@ def load_blender_data(basedir, half_res=False, testskip=1):
             imgs_half_res[i] = cv2.resize(img, (W, H), interpolation=cv2.INTER_AREA)
         imgs = imgs_half_res
         # imgs = tf.image.resize_area(imgs, [400, 400]).numpy()
-
         
     return imgs, poses, render_poses, [H, W, focal], i_split
 
 
+if __name__ == '__main__':
+    load_blender_data('data/nerf_synthetic/lego', half_res=True)
