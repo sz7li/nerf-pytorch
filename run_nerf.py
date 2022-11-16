@@ -38,9 +38,9 @@ def set_values_for_tree(pts, densities, tree):
         for i, unique_id in enumerate(unique_ids):
             new_max_densities[i] = torch.max(densities[i][node_ids == unique_id]).detach().clone()
         corners = tree.corners[unique_ids]
-        z = torch.zeros((8, 1)) + 1
+        # z = torch.zeros((8, 1)) + 1
 
-        torch.cat([z, a], dim=-1)
+        # torch.cat([z, a], dim=-1)
         tree.set(corners, new_max_densities.reshape(len(new_max_densities), 1))
     print("Set nodes to densities: ", unique_ids, new_max_densities)
 
