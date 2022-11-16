@@ -58,6 +58,8 @@ def batchify(fn, chunk):
 def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
     """Prepares inputs and applies network 'fn'.
     """
+
+    print("RUN NETWORK function ", inputs.shape, viewdirs.shape)
     inputs_flat = torch.reshape(inputs, [-1, inputs.shape[-1]])
     embedded = embed_fn(inputs_flat)
 
@@ -69,6 +71,7 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
 
     outputs_flat = batchify(fn, netchunk)(embedded)
     outputs = torch.reshape(outputs_flat, list(inputs.shape[:-1]) + [outputs_flat.shape[-1]])
+    print("run_network function output shape ", outputs.shape)
     return outputs
 
 
@@ -438,6 +441,7 @@ def render_rays(ray_batch,
     print(pts.shape, viewdirs.shape) # [1024, 64, 3], [1024, 3]
     # print("pts[0]", pts[0])
     print("viewdirs[0]", viewdirs[0])
+    print("network_query_fn with ", pts.shape, viewdirs.shape)
     raw = network_query_fn(pts, viewdirs, network_fn)
     print("RAW out")
     #
