@@ -30,10 +30,17 @@ def set_values_for_tree(pts, densities, tree):
         values, node_ids = tree.forward(ray, want_node_ids=True)
         unique_ids = torch.unique(node_ids)
         # node ids [0,0,0,4,4,6,6]
+
+
         new_max_densities = torch.zeros(len(unique_ids))
+
+
         for i, unique_id in enumerate(unique_ids):
             new_max_densities[i] = torch.max(densities[i][node_ids == unique_id]).detach().clone()
         corners = tree.corners[unique_ids]
+        z = torch.zeros((8, 1)) + 1
+
+        torch.cat([z, a], dim=-1)
         tree.set(corners, new_max_densities.reshape(len(new_max_densities), 1))
     print("Set nodes to densities: ", unique_ids, new_max_densities)
 
@@ -197,7 +204,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
 
 
 def create_tree(center, radius):
-    tree = svox.N3Tree(data_dim=1, data_format="RGBA",
+    tree = svox.N3Tree(data_dim=16, data_format="RGBA",
                   center=center, radius=radius,
                   N=2, device="cpu",
                   init_refine=1, depth_limit=10,
@@ -350,7 +357,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
 
 
 def render_rays(ray_batch,
-                network_fn,
+                network_fn, # WHAT IS THIS
                 network_query_fn,
                 N_samples,
                 retraw=False,
@@ -432,6 +439,27 @@ def render_rays(ray_batch,
     # print("pts[0]", pts[0])
     print("viewdirs[0]", viewdirs[0])
     raw = network_query_fn(pts, viewdirs, network_fn)
+    print("RAW out")
+    #
+    #
+    # 
+    # raw = network_query_fn(pts, viewdirs, network_fn)
+    # network_fn -> make this take an input of [N, feature_size]
+    # 
+    # 
+
+    #
+    # network_query_fn : raw locations with z values -> transform them into tree indices of which leaves intersect each ray
+    #  -> extract feature outputs from each leaf -> evaluate network using each feature output
+    #
+    # [0, 0.1, 0.2, 0.4, 0.9]
+    # [0, 0, 0, 2, 2, 2, 2]
+    # [feature[0], 0, 0, 2, 2, 2, 2]
+    # [network(feature[0]), network(feature[0]), network(feature[0]), network(feature[2])]
+    # 
+
+
+
     print("Raw output shape:", raw.shape) #[1024, 64, 4]
     print("N IMPORTANCE IS ", N_importance)
 
