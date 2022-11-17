@@ -250,12 +250,12 @@ def find_bounds():
 def create_nerf(args, tree): # add tree
     """Instantiate NeRF's MLP model.
     """
-    embed_fn, input_ch = get_embedder(args.multires, args.i_embed)
+    embed_fn, input_ch = get_embedder(args.multires, 16, args.i_embed)
 
     input_ch_views = 0
     embeddirs_fn = None
     if args.use_viewdirs:
-        embeddirs_fn, input_ch_views = get_embedder(args.multires_views, args.i_embed)
+        embeddirs_fn, input_ch_views = get_embedder(args.multires_views, 3, args.i_embed)
     output_ch = 5 if args.N_importance > 0 else 4
     skips = [4]
     model = NeRF(D=args.netdepth, W=args.netwidth,
@@ -658,6 +658,8 @@ def train():
 
     parser = config_parser()
     args = parser.parse_args()
+
+    print("ARGS: ", args)
 
     # Load data
     K = None

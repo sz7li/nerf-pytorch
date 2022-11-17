@@ -56,19 +56,18 @@ class Embedder:
         return cat
 
 
-def get_embedder(multires, i=0):
+def get_embedder(multires, input_dims, i=0):
     if i == -1:
         return nn.Identity(), 3
     
     embed_kwargs = {
                 'include_input' : True,
-                'input_dims' : 16,
+                'input_dims' : input_dims,
                 'max_freq_log2' : multires-1,
                 'num_freqs' : multires,
                 'log_sampling' : True,
                 'periodic_fns' : [torch.sin, torch.cos],
     }
-    
     embedder_obj = Embedder(**embed_kwargs)
     embed = lambda x, eo=embedder_obj : eo.embed(x)
     return embed, embedder_obj.out_dim
