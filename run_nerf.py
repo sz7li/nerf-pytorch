@@ -812,7 +812,7 @@ def train():
     # Short circuit if only rendering out from trained model
     if args.render_only:
         print('RENDER ONLY')
-        tree = svox.N3Tree.load("tree_iter_50000.npz", device=device)
+        tree = svox.N3Tree.load("tree_test/tree_iter_50000.npz", device=device)
         render_kwargs_test['tree'] = tree
         with torch.no_grad():
             if args.render_test:
