@@ -68,6 +68,7 @@ def batchify(fn, chunk):
     if chunk is None:
         return fn
     def ret(inputs):
+        print(chunk)
         return torch.cat([fn(inputs[i:i+chunk]) for i in range(0, inputs.shape[0], chunk)], 0)
     return ret
 
