@@ -80,6 +80,7 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
     inputs_flat = torch.reshape(inputs, [-1, inputs.shape[-1]])
     print("inputs flat shape ", inputs_flat.shape)
     embedded = embed_fn(inputs_flat)
+    print("Embedded shape ", embedded.shape)
 
     if viewdirs is not None:
         # input_dirs = viewdirs[:,None].expand(inputs.shape)
