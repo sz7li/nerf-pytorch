@@ -151,8 +151,8 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
         if c2w_staticcam is not None:
             # special case to visualize effect of viewdirs
             rays_o, rays_d = get_rays(H, W, K, c2w_staticcam)
-        print(rays_d)
-        print(viewdirs)
+        # viewdirs and rays_d same up until this point
+        print(torch.norm(viewdirs, dim=-1, keepdim=True))
         viewdirs = viewdirs / torch.norm(viewdirs, dim=-1, keepdim=True)
         viewdirs = torch.reshape(viewdirs, [-1,3]).float()
 
