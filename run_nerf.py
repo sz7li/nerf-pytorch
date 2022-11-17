@@ -142,6 +142,7 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
         rays_o, rays_d = get_rays(H, W, K, c2w)
     else:
         # use provided ray batch
+        print("c2w is None")
         rays_o, rays_d = rays
 
     if use_viewdirs:
@@ -150,6 +151,7 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
         if c2w_staticcam is not None:
             # special case to visualize effect of viewdirs
             rays_o, rays_d = get_rays(H, W, K, c2w_staticcam)
+        print(viewdirs.shape)
         viewdirs = viewdirs / torch.norm(viewdirs, dim=-1, keepdim=True)
         viewdirs = torch.reshape(viewdirs, [-1,3]).float()
 
@@ -170,7 +172,7 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
     print(near.shape, far.shape, near[0], far[0])
 
     if use_viewdirs:
-        print("USE VIEW DIRS")
+        print("USE VIEWDIRS")
         rays = torch.cat([rays, viewdirs], -1)
 
     # Render and reshape
@@ -431,8 +433,6 @@ def render_rays(ray_batch,
     rays_o, rays_d = ray_batch[:,0:3], ray_batch[:,3:6] # [N_rays, 3] each
     viewdirs = ray_batch[:,-3:] if ray_batch.shape[-1] > 8 else None
     print("Render_rays")
-    print(ray_batch[500:525])
-    print(viewdirs[500:525])
     bounds = torch.reshape(ray_batch[...,6:8], [-1,1,2])
     near, far = bounds[...,0], bounds[...,1] # [-1,1]
 
