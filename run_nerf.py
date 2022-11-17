@@ -234,7 +234,7 @@ def create_tree(center, radius):
     tree = svox.N3Tree(data_dim=16, data_format="RGBA",
                   center=center, radius=radius,
                   N=2, device="cpu",
-                  init_refine=0, depth_limit=10,
+                  init_refine=5, depth_limit=10,
                   extra_data=None)
     # tree.to("cuda")
     # for i in range(8):
