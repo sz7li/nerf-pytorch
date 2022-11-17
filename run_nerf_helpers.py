@@ -23,7 +23,7 @@ class Octree:
 class Embedder:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
-        self.embedding_fn()
+        self.create_embedding_fn()
         
     def create_embedding_fn(self):
         embed_fns = []
