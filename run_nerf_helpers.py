@@ -62,7 +62,7 @@ def get_embedder(multires, i=0):
     
     embed_kwargs = {
                 'include_input' : True,
-                'input_dims' : 3,
+                'input_dims' : 16,
                 'max_freq_log2' : multires-1,
                 'num_freqs' : multires,
                 'log_sampling' : True,
