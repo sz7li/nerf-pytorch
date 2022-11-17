@@ -518,9 +518,13 @@ def render_rays(ray_batch,
         z_vals, _ = torch.sort(torch.cat([z_vals, z_samples], -1), -1)
         pts = rays_o[...,None,:] + rays_d[...,None,:] * z_vals[...,:,None] # [N_rays, N_samples + N_importance, 3]
 
+        features_at_intersections = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
+
         run_fn = network_fn if network_fine is None else network_fine
 #         raw = run_network(pts, fn=run_fn)
-        raw = network_query_fn(pts, viewdirs, run_fn)
+        # raw = network_query_fn(pts, viewdirs, run_fn)
+        raw = network_query_fn(features_at_intersections, viewdirs, run_fn)
+        
         print("Additional samplings along ray")
         rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, rgb = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
         set_values_for_tree(pts, raw_densities, tree)
@@ -1061,6 +1065,8 @@ def train():
         """
 
         global_step += 1
+
+        print("Step finished ", global_step)
 
 
 if __name__=='__main__':
