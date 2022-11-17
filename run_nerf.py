@@ -725,6 +725,8 @@ def train():
     if args.render_test:
         render_poses = np.array(poses[i_test])
 
+    N_rand = args.N_rand
+    
     # Create log dir and copy the config file
     basedir = args.basedir
     expname = args.expname
@@ -800,7 +802,6 @@ def train():
             return
 
     # Prepare raybatch tensor if batching random rays
-    N_rand = args.N_rand
     use_batching = not args.no_batching
     print("Use batching: ", use_batching) #default false
     if use_batching:
