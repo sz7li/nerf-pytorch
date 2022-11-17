@@ -44,6 +44,11 @@ def set_values_for_tree(pts, densities, tree):
         tree.set(corners, new_max_densities.reshape(len(new_max_densities), 1))
     print("Set nodes to densities: ", unique_ids, new_max_densities)
 
+def get_features_from_rays(pts, tree):
+    for i, ray in enumerate(pts):
+        feature_values = tree.forward(ray)
+        print(feature_values.shape)
+        return
 
 def batchify(fn, chunk):
     """Constructs a version of 'fn' that applies to smaller batches.
@@ -59,7 +64,7 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
     """Prepares inputs and applies network 'fn'.
     """
 
-    print("RUN NETWORK function ", inputs.shape, viewdirs.shape)
+    print("RUN NETWORK function ", inputs.shape, viewdirs.shape) # [1024, 64, 3], [1024, 3] => change to 1024, 64, 16
     inputs_flat = torch.reshape(inputs, [-1, inputs.shape[-1]])
     embedded = embed_fn(inputs_flat)
 
@@ -223,7 +228,7 @@ def create_tree(center, radius):
 def find_bounds():
     pass
 
-def create_nerf(args):
+def create_nerf(args, tree): # add tree
     """Instantiate NeRF's MLP model.
     """
     embed_fn, input_ch = get_embedder(args.multires, args.i_embed)
@@ -237,7 +242,11 @@ def create_nerf(args):
     model = NeRF(D=args.netdepth, W=args.netwidth,
                  input_ch=input_ch, output_ch=output_ch, skips=skips,
                  input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device)
-    grad_vars = list(model.parameters())
+    
+    tree.to('cuda')
+
+    # todo add tree parameters
+    grad_vars = list(model.parameters()) + list(tree.parameters())
 
     model_fine = None
     if args.N_importance > 0:
@@ -442,13 +451,18 @@ def render_rays(ray_batch,
     # print("pts[0]", pts[0])
     print("viewdirs[0]", viewdirs[0])
     print("network_query_fn with ", pts.shape, viewdirs.shape)
+
+    # get features from rays
+    get_features_from_rays(pts, tree)
+    # new_pts = get_features_from_rays(pts)
+    # 
     raw = network_query_fn(pts, viewdirs, network_fn)
     print("RAW out")
     #
     #
     # 
     # raw = network_query_fn(pts, viewdirs, network_fn)
-    # network_fn -> make this take an input of [N, feature_size]
+    # network_fn -> make this take an input of [N, 64, feature_size]
     # 
     # 
 
@@ -725,8 +739,32 @@ def train():
         with open(f, 'w') as file:
             file.write(open(args.config, 'r').read())
 
+    # create tree
+    def get_bounding_box(images, poses, train_size):
+        points = torch.zeros((train_size, 3))
+        for i in range(train_size):
+            im = images[i]
+            pose = poses[i, :3,:4]
+            if N_rand is not None:
+                rays_o, rays_d = get_rays(H, W, K, torch.Tensor(pose))
+                points[i] = rays_o[0][0]
+        return points
+
+    p = get_bounding_box(images, poses, len(i_train)).cpu() # ray point origins
+    bbox = np.asarray([[min(p[:, 0]), min(p[:, 1]), min(p[:, 2])], [max(p[:, 0]), max(p[:, 1]), max(p[:, 2])]])
+    print("BBOX: ", bbox)
+
+    # save points
+    # np.savez("positions_mic.npz", p=p)
+
+    center = np.mean(bbox, axis=0)
+    radius = np.sqrt(np.sum((bbox[0] - bbox[1]) ** 2) / 2) / 2
+    # Create tree model
+    tree = create_tree(center, radius)
+    # tree = tree.load("tree_iter_9725.npz")
+    
     # Create nerf model
-    render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer = create_nerf(args)
+    render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer = create_nerf(args, tree)
 
     global_step = start
 
@@ -799,30 +837,6 @@ def train():
 
     # Summary writers
     # writer = SummaryWriter(os.path.join(basedir, 'summaries', expname))
-
-    def get_bounding_box(images, poses, train_size):
-        points = torch.zeros((train_size, 3))
-        for i in range(train_size):
-            im = images[i]
-            pose = poses[i, :3,:4]
-            if N_rand is not None:
-                rays_o, rays_d = get_rays(H, W, K, torch.Tensor(pose))
-                points[i] = rays_o[0][0]
-        return points
-
-    p = get_bounding_box(images, poses, len(i_train)).cpu() # ray point origins
-    bbox = np.asarray([[min(p[:, 0]), min(p[:, 1]), min(p[:, 2])], [max(p[:, 0]), max(p[:, 1]), max(p[:, 2])]])
-    print("BBOX: ", bbox)
-
-    # save points
-    np.savez("positions_mic.npz", p=p)
-
-    center = np.mean(bbox, axis=0)
-    radius = np.sqrt(np.sum((bbox[0] - bbox[1]) ** 2) / 2) / 2
-    # Create tree model
-    tree = create_tree(center, radius)
-    # tree = tree.load("tree_iter_9725.npz")
-    tree.to("cuda")
     
     render_kwargs_train['tree'] = tree
     print("render kwargs train", render_kwargs_train)
