@@ -45,8 +45,19 @@ def set_values_for_tree(pts, densities, tree):
     print("Set nodes to densities: ", unique_ids, new_max_densities)
 
 def get_features_from_rays(pts, tree):
+    batch_size, N_samples, dim = pts.shape[0], pts.shape[1], pts.shape[2]
+    
+    
+    pts_reshape = pts.reshape(batch_size * N_samples, dim)
+    forward = tree.forward(pts_reshape)
+    forward = forward.reshape(batch_size, N_samples, tree.data_dim)
+
+    print("Returning tree forward with shape", forward.shape)
+
+    return forward
     for i, ray in enumerate(pts):
         feature_values = tree.forward(ray)
+
         print(feature_values.shape)
         print(feature_values[0])
         return
@@ -454,10 +465,10 @@ def render_rays(ray_batch,
     print("network_query_fn with ", pts.shape, viewdirs.shape)
 
     # get features from rays
-    get_features_from_rays(pts, tree)
+    features_at_intersections = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
     # new_pts = get_features_from_rays(pts)
     # 
-    raw = network_query_fn(pts, viewdirs, network_fn)
+    raw = network_query_fn(features_at_intersections, viewdirs, network_fn)
     print("RAW out")
     #
     #
