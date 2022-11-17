@@ -1066,7 +1066,7 @@ def train():
 
         global_step += 1
 
-        print("Step finished ", global_step)
+        print("---------------Step finished---------------", global_step)
 
 
 if __name__=='__main__':
