@@ -1068,7 +1068,7 @@ def train():
         global_step += 1
 
         print("---------------Step finished---------------", global_step)
-        print(tree.values, len(tree.parameters()))
+        print(tree.values, len(list(tree.parameters())))
 
 
 if __name__=='__main__':
