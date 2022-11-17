@@ -82,7 +82,8 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
     embedded = embed_fn(inputs_flat)
 
     if viewdirs is not None:
-        input_dirs = viewdirs[:,None].expand(inputs.shape)
+        # input_dirs = viewdirs[:,None].expand(inputs.shape)
+        input_dirs = viewdirs[:,None].expand(1024, 64, 3)
         input_dirs_flat = torch.reshape(input_dirs, [-1, input_dirs.shape[-1]])
         embedded_dirs = embeddirs_fn(input_dirs_flat)
         embedded = torch.cat([embedded, embedded_dirs], -1)
@@ -152,7 +153,7 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
             # special case to visualize effect of viewdirs
             rays_o, rays_d = get_rays(H, W, K, c2w_staticcam)
         # viewdirs and rays_d same up until this point
-        print(torch.norm(viewdirs, dim=-1, keepdim=True))
+        # torch.norm(viewdirs, dim=-1, keepdim=True) -> this is near 1.0 so viewdirs is slightly diff from rays_d after normalization
         viewdirs = viewdirs / torch.norm(viewdirs, dim=-1, keepdim=True)
         viewdirs = torch.reshape(viewdirs, [-1,3]).float()
 
