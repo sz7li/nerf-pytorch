@@ -77,7 +77,6 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
     """
 
     print("RUN NETWORK function ", inputs.shape, viewdirs.shape) # [1024, 64, 3], [1024, 3] => change to 1024, 64, 16
-    print(viewdirs)
     inputs_flat = torch.reshape(inputs, [-1, inputs.shape[-1]])
     embedded = embed_fn(inputs_flat)
 
