@@ -1062,7 +1062,7 @@ def train():
         global_step += 1
 
         print("---------------Step finished---------------", global_step)
-        print(tree.weight)
+        print(tree.values)
 
 
 if __name__=='__main__':
