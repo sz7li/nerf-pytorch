@@ -527,7 +527,7 @@ def render_rays(ray_batch,
         
         print("Additional samplings along ray")
         rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, rgb = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
-        set_values_for_tree(pts, raw_densities, tree)
+        # set_values_for_tree(pts, raw_densities, tree)
 
     ret = {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
     if retraw:
@@ -789,6 +789,9 @@ def train():
     radius = np.sqrt(np.sum((bbox[0] - bbox[1]) ** 2) / 2) / 2
     # Create tree model
     tree = create_tree(center, radius)
+    print("Tree created with size ", len(tree.values))
+    tree.refine()
+    print("Tree created with size ", len(tree.values))
     # tree = tree.load("tree_iter_9725.npz")
     
     # Create nerf model
@@ -872,7 +875,7 @@ def train():
     for i in trange(start, N_iters):
         time0 = time.time()
 
-        if i % 25 == 0:
+        if False:
 
             print(f"Saving tree at iteration {i}")
             print("Before refine: ", len(tree))
@@ -1067,6 +1070,7 @@ def train():
         global_step += 1
 
         print("---------------Step finished---------------", global_step)
+        print(tree.values)
 
 
 if __name__=='__main__':
