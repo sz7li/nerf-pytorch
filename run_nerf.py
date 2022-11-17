@@ -166,9 +166,10 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
     print("inside render: ")
     print(rays_o.shape)
     print(rays_d.shape)
-    # print(near, far)
+    print(near.shape, far.shape, near[0], far[0])
 
     if use_viewdirs:
+        print("USE VIEW DIRS")
         rays = torch.cat([rays, viewdirs], -1)
 
     # Render and reshape
@@ -428,8 +429,9 @@ def render_rays(ray_batch,
     N_rays = ray_batch.shape[0]
     rays_o, rays_d = ray_batch[:,0:3], ray_batch[:,3:6] # [N_rays, 3] each
     viewdirs = ray_batch[:,-3:] if ray_batch.shape[-1] > 8 else None
-    print(ray_batch)
-    print(viewdirs)
+    print("Render_rays")
+    print(ray_batch[0])
+    print(viewdirs[0])
     bounds = torch.reshape(ray_batch[...,6:8], [-1,1,2])
     near, far = bounds[...,0], bounds[...,1] # [-1,1]
 
