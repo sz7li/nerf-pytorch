@@ -77,6 +77,7 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
     """
 
     print("RUN NETWORK function ", inputs.shape, viewdirs.shape) # [1024, 64, 3], [1024, 3] => change to 1024, 64, 16
+    print(viewdirs)
     inputs_flat = torch.reshape(inputs, [-1, inputs.shape[-1]])
     embedded = embed_fn(inputs_flat)
 
@@ -427,6 +428,8 @@ def render_rays(ray_batch,
     N_rays = ray_batch.shape[0]
     rays_o, rays_d = ray_batch[:,0:3], ray_batch[:,3:6] # [N_rays, 3] each
     viewdirs = ray_batch[:,-3:] if ray_batch.shape[-1] > 8 else None
+    print(ray_batch)
+    print(viewdirs)
     bounds = torch.reshape(ray_batch[...,6:8], [-1,1,2])
     near, far = bounds[...,0], bounds[...,1] # [-1,1]
 
@@ -462,13 +465,13 @@ def render_rays(ray_batch,
     print(pts.shape, viewdirs.shape) # [1024, 64, 3], [1024, 3]
     # print("pts[0]", pts[0])
     print("viewdirs[0]", viewdirs[0])
-    print("network_query_fn with ", pts.shape, viewdirs.shape)
+    print("pts and viewdirs dimensions ", pts.shape, viewdirs.shape)
 
     # get features from rays
     features_at_intersections = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
     # new_pts = get_features_from_rays(pts)
     # 
-    raw = network_query_fn(features_at_intersections, viewdirs, network_fn)
+    raw = network_query_fn(features_at_intersections, viewdirs, network_fn) # network_fn is model=NeRF(...)
     print("RAW out")
     #
     #
