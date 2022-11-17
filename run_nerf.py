@@ -431,8 +431,8 @@ def render_rays(ray_batch,
     rays_o, rays_d = ray_batch[:,0:3], ray_batch[:,3:6] # [N_rays, 3] each
     viewdirs = ray_batch[:,-3:] if ray_batch.shape[-1] > 8 else None
     print("Render_rays")
-    print(ray_batch[715])
-    print(viewdirs[715])
+    print(ray_batch[500:525])
+    print(viewdirs[500:525])
     bounds = torch.reshape(ray_batch[...,6:8], [-1,1,2])
     near, far = bounds[...,0], bounds[...,1] # [-1,1]
 
