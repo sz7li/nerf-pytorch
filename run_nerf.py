@@ -48,6 +48,7 @@ def get_features_from_rays(pts, tree):
     for i, ray in enumerate(pts):
         feature_values = tree.forward(ray)
         print(feature_values.shape)
+        print(feature_values[0])
         return
 
 def batchify(fn, chunk):
