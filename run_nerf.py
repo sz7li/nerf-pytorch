@@ -26,6 +26,14 @@ np.random.seed(0)
 DEBUG = False
 
 def set_values_for_tree(pts, densities, tree):
+    batch_size, N_samples, dim = pts.shape[0], pts.shape[1], pts.shape[2]
+    pts_reshape = pts.reshape(batch_size * N_samples, dim) 
+
+    densities_reshape = densities.reshape(batch_size * N_samples, 1) 
+    forward = tree.forward(pts_reshape, want_node_ids=True)
+
+
+
     for i, ray in enumerate(pts):
         values, node_ids = tree.forward(ray, want_node_ids=True)
         unique_ids = torch.unique(node_ids)
@@ -46,8 +54,6 @@ def set_values_for_tree(pts, densities, tree):
 
 def get_features_from_rays(pts, tree):
     batch_size, N_samples, dim = pts.shape[0], pts.shape[1], pts.shape[2]
-    
-    
     pts_reshape = pts.reshape(batch_size * N_samples, dim)
     forward = tree.forward(pts_reshape)
     forward = forward.reshape(batch_size, N_samples, tree.data_dim)
@@ -867,14 +873,10 @@ def train():
     for i in trange(start, N_iters):
         time0 = time.time()
 
-        if False:
+        if i % 100 == 0:
 
             print(f"Saving tree at iteration {i}")
-            print("Before refine: ", len(tree))
-            # tree.to("cpu")
-            tree[tree.corners[(tree.values > 100).reshape(len(tree))]].refine()
-            print("After refine: ", len(tree))
-            tree.save(f"tree_iter_{i}.npz")
+            tree.save(f"tree_test/tree_iter_{i}.npz")
 
             # Sample
 
@@ -1062,7 +1064,7 @@ def train():
         global_step += 1
 
         print("---------------Step finished---------------", global_step)
-        print(tree.values)
+        print(tree.values[0])
 
 
 if __name__=='__main__':
