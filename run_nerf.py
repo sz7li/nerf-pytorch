@@ -55,12 +55,6 @@ def get_features_from_rays(pts, tree):
     print("Returning tree forward with shape", forward.shape)
 
     return forward
-    for i, ray in enumerate(pts):
-        feature_values = tree.forward(ray)
-
-        print(feature_values.shape)
-        print(feature_values[0])
-        return
 
 def batchify(fn, chunk):
     """Constructs a version of 'fn' that applies to smaller batches.
@@ -1068,7 +1062,7 @@ def train():
         global_step += 1
 
         print("---------------Step finished---------------", global_step)
-        print(tree.values, list(tree.parameters())[0])
+        print(tree.weight)
 
 
 if __name__=='__main__':
