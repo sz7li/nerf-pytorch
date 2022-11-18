@@ -350,7 +350,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
 
     dists = z_vals[...,1:] - z_vals[...,:-1]
     dists = torch.cat([dists, torch.Tensor([1e10]).expand(dists[...,:1].shape)], -1)  # [N_rays, N_samples]
-
+    
     dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
 
     rgb = torch.sigmoid(raw[...,:3])  # [N_rays, N_samples, 3]
@@ -883,12 +883,18 @@ def train():
             print(f"Saving tree at iteration {i}")
             rays_o, rays_d = get_rays(H, W, K, torch.Tensor(temp_pose[:3,:4]))
             print("Test ray values rays_d", rays_d.shape, rays_d[0])
-            return 
+            
             raw2alpha = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
+            t_vals = torch.linspace(0., 1., steps=64)
+            z_vals = near * (1.-t_vals) + far * (t_vals)
+            dists = z_vals[...,1:] - z_vals[...,:-1]
+            dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
 
-
-            # alpha = raw2alpha(raw[...,3] + noise, dists)  # [N_rays, N_samples]
-
+            alpha = raw2alpha(raw[...,3] + 0., dists)  # [N_rays, N_samples]
+            network_query_fn = render_kwargs_train['network_query_fn']
+            raw = network_query_fn(tree.values[None,], rays_d, render_kwargs_train['network_fine']) # network_fn is model=NeRF(...)
+            print(raw)
+            return 
             # Sample
 
             # Sample Random rays, and log max density of each voxel, or
