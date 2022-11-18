@@ -892,7 +892,7 @@ def train():
             dists = z_vals[...,1:] - z_vals[...,:-1]
             print(dists)
             dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
-            print(dists)
+            print(dists.shape)
 
             network_query_fn = render_kwargs_train['network_query_fn']
             raw = network_query_fn(tree.values[None,], rays_d, render_kwargs_train['network_fine']) # network_fn is model=NeRF(...)
