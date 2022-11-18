@@ -73,13 +73,15 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
     """
 
     print("RUN NETWORK function ", inputs.shape, viewdirs.shape) # [1024, 64, 3], [1024, 3] => change to 1024, 64, 16
+    # for refining input shape is [1, 512, 16], viewdirs is [400, 400, 3] => [1, 3]
     inputs_flat = torch.reshape(inputs, [-1, inputs.shape[-1]])
     print("inputs flat shape ", inputs_flat.shape)
     embedded = embed_fn(inputs_flat)
 
     if viewdirs is not None:
         # input_dirs = viewdirs[:,None].expand(inputs.shape)
-        input_dirs = viewdirs[:,None].expand(inputs.shape[0], inputs.shape[1], 3)
+        input_dirs = viewdirs[:,None].expand(inputs.shape[0], inputs.shape[1], 3) 
+        # .expand(1024, 192, 3)
         input_dirs_flat = torch.reshape(input_dirs, [-1, input_dirs.shape[-1]])
         embedded_dirs = embeddirs_fn(input_dirs_flat)
         embedded = torch.cat([embedded, embedded_dirs], -1)
@@ -888,10 +890,13 @@ def train():
             t_vals = torch.linspace(0., 1., steps=64)
             z_vals = near * (1.-t_vals) + far * (t_vals)
             dists = z_vals[...,1:] - z_vals[...,:-1]
+            print(dists)
             dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
+            print(dists)
 
             network_query_fn = render_kwargs_train['network_query_fn']
             raw = network_query_fn(tree.values[None,], rays_d, render_kwargs_train['network_fine']) # network_fn is model=NeRF(...)
+            # we want raw to be [tree_size, 4]
             alpha = raw2alpha(raw[...,3] + 0., dists)  # [N_rays, N_samples]
             print(raw, alpha)
             return 
