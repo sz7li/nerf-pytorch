@@ -25,28 +25,25 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 np.random.seed(0)
 DEBUG = False
 
-def set_values_for_tree(pts, densities, tree):
+def set_values_for_tree(pts, alpha, tree):
     batch_size, N_samples, dim = pts.shape[0], pts.shape[1], pts.shape[2]
-    pts_reshape = pts.reshape(batch_size * N_samples, dim) 
-
-    densities_reshape = densities.reshape(batch_size * N_samples, 1) 
-    forward = tree.forward(pts_reshape, want_node_ids=True)
-
-    for i, ray in enumerate(pts):
-        values, node_ids = tree.forward(ray, want_node_ids=True)
-        unique_ids = torch.unique(node_ids)
+    pts_reshape = pts.reshape(batch_size * N_samples, dim) # [1024x64, 3]
+    values, node_ids = tree.forward(pts_reshape, want_node_ids=True)[1]
+    node_ids = node_ids.reshape(batch_size, N_samples)
+    values = values.reshape(batch_size, N_samples, tree.data_dim)
+    
+    for i, ray_id in enumerate(node_ids):
+        unique_ids = torch.unique(ray_id)
         # node ids [0,0,0,4,4,6,6]
-
-
         new_max_densities = torch.zeros(len(unique_ids))
-
-
         for i, unique_id in enumerate(unique_ids):
-            new_max_densities[i] = torch.max(densities[i][node_ids == unique_id]).detach().clone()
+            new_max_densities[i] = torch.max(alpha[i][node_ids == unique_id])
         corners = tree.corners[unique_ids]
+        values = tree.values[unique_ids]
         # z = torch.zeros((8, 1)) + 1
-
         # torch.cat([z, a], dim=-1)
+
+
         tree.set(corners, new_max_densities.reshape(len(new_max_densities), 1))
     print("Set nodes to densities: ", unique_ids, new_max_densities)
 
@@ -372,9 +369,8 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
             np.random.seed(0)
             noise = np.random.rand(*list(raw[...,3].shape)) * raw_noise_std
             noise = torch.Tensor(noise)
-
+    
     alpha = raw2alpha(raw[...,3] + noise, dists)  # [N_rays, N_samples]
-    print(alpha[0])
 
     # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
     weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1)), 1.-alpha + 1e-10], -1), -1)[:, :-1]
@@ -387,7 +383,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     if white_bkgd:
         rgb_map = rgb_map + (1.-acc_map[...,None])
 
-    return rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, rgb
+    return rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, rgb, alpha
 
 
 def render_rays(ray_batch,
@@ -504,7 +500,7 @@ def render_rays(ray_batch,
     print("Raw output shape:", raw.shape) #[1024, 64, 4]
     print("N IMPORTANCE IS ", N_importance)
 
-    rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, raw_rgb = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+    rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, raw_rgb, raw_alpha = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
     # rgb_map [num_rays, 3]
     # raw2outputs accumulates and sums the pts passed in 
     # tree.set(pts, raw[rgb], raw[densities])
@@ -529,8 +525,8 @@ def render_rays(ray_batch,
         raw = network_query_fn(features_at_intersections, viewdirs, run_fn)
         
         print("Additional samplings along ray")
-        rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, rgb = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
-        # set_values_for_tree(pts, raw_densities, tree)
+        rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, rgb, raw_alpha = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+        set_values_for_tree(pts, raw_alpha, tree)
 
     ret = {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
     if retraw:
@@ -785,6 +781,8 @@ def train():
     bbox = np.asarray([[min(p[:, 0]), min(p[:, 1]), min(p[:, 2])], [max(p[:, 0]), max(p[:, 1]), max(p[:, 2])]])
     print("BBOX: ", bbox)
 
+    temp_pose = poses[0]
+
     # save points
     # np.savez("positions_mic.npz", p=p)
 
@@ -880,10 +878,15 @@ def train():
     for i in trange(start, N_iters):
         time0 = time.time()
 
-        if i % 100 == 0:
+        if i % 10 == 0:
 
             print(f"Saving tree at iteration {i}")
-            tree.save(f"tree_test/tree_iter_{i}.npz")
+            rays_o, rays_d = get_rays(H, W, K, torch.Tensor(temp_pose[i, :3,:4]))
+            print("Test ray values rays_d")
+            raw2alpha = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
+
+
+            # alpha = raw2alpha(raw[...,3] + noise, dists)  # [N_rays, N_samples]
 
             # Sample
 
