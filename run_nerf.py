@@ -526,7 +526,7 @@ def render_rays(ray_batch,
         
         print("Additional samplings along ray")
         rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, rgb, raw_alpha = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
-        set_values_for_tree(pts, raw_alpha, tree)
+        # set_values_for_tree(pts, raw_alpha, tree)
 
     ret = {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
     if retraw:
