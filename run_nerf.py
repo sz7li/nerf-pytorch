@@ -884,6 +884,7 @@ def train():
 
             print(f"Saving tree at iteration {i}")
             rays_o, rays_d = get_rays(H, W, K, torch.Tensor(temp_pose[:3,:4]))
+            rays_d = rays_d[200][200][None, ]
             print("Test ray values rays_d", rays_d.shape, rays_d[0])
             
             raw2alpha = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
@@ -892,8 +893,9 @@ def train():
             dists = z_vals[...,1:] - z_vals[...,:-1]
             print(dists)
             dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
+            print(dists)
             network_query_fn = render_kwargs_train['network_query_fn']
-            raw = network_query_fn(tree.values[None,], rays_d[200][200][None, ], render_kwargs_train['network_fine']) # network_fn is model=NeRF(...)
+            raw = network_query_fn(tree.values[None,], rays_d, render_kwargs_train['network_fine']) # network_fn is model=NeRF(...)
             # we want raw to be [tree_size, 4]
             print("Network successfully queried")
             alpha = raw2alpha(raw[...,3] + 0., dists)  # [N_rays, N_samples]
