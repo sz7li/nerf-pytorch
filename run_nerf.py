@@ -32,8 +32,6 @@ def set_values_for_tree(pts, densities, tree):
     densities_reshape = densities.reshape(batch_size * N_samples, 1) 
     forward = tree.forward(pts_reshape, want_node_ids=True)
 
-
-
     for i, ray in enumerate(pts):
         values, node_ids = tree.forward(ray, want_node_ids=True)
         unique_ids = torch.unique(node_ids)
@@ -266,6 +264,7 @@ def create_nerf(args, tree): # add tree
 
     # todo add tree parameters
     grad_vars = list(model.parameters()) + list(tree.parameters())
+    # grad_vars = list([model.parameters() + tree.parameters()])
 
     model_fine = None
     if args.N_importance > 0:
@@ -373,6 +372,8 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
             noise = torch.Tensor(noise)
 
     alpha = raw2alpha(raw[...,3] + noise, dists)  # [N_rays, N_samples]
+    print(alpha[0])
+
     # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
     weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1)), 1.-alpha + 1e-10], -1), -1)[:, :-1]
     rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
