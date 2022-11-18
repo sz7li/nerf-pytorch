@@ -261,6 +261,7 @@ def create_nerf(args, tree): # add tree
                  input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device)
     
     tree.to('cuda')
+    print("Created model with ", next(model.parameters())[0])
 
     # todo add tree parameters
     grad_vars = list(model.parameters()) + list(tree.parameters())
@@ -272,6 +273,7 @@ def create_nerf(args, tree): # add tree
                           input_ch=input_ch, output_ch=output_ch, skips=skips,
                           input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device)
         grad_vars += list(model_fine.parameters())
+        print("Created fine NERF model", next(model_fine.parameters())[0])
 
     network_query_fn = lambda inputs, viewdirs, network_fn : run_network(inputs, viewdirs, network_fn,
                                                                 embed_fn=embed_fn,
@@ -562,11 +564,11 @@ def config_parser():
     # training options
     parser.add_argument("--netdepth", type=int, default=8, 
                         help='layers in network')
-    parser.add_argument("--netwidth", type=int, default=256, 
+    parser.add_argument("--netwidth", type=int, default=128, 
                         help='channels per layer')
     parser.add_argument("--netdepth_fine", type=int, default=8, 
                         help='layers in fine network')
-    parser.add_argument("--netwidth_fine", type=int, default=256, 
+    parser.add_argument("--netwidth_fine", type=int, default=128, 
                         help='channels per layer in fine network')
     parser.add_argument("--N_rand", type=int, default=32*32*4, 
                         help='batch size (number of random rays per gradient step)')
