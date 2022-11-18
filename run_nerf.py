@@ -882,7 +882,8 @@ def train():
 
             print(f"Saving tree at iteration {i}")
             rays_o, rays_d = get_rays(H, W, K, torch.Tensor(temp_pose[:3,:4]))
-            print("Test ray values rays_d")
+            print("Test ray values rays_d", rays_d.shape, rays_d[0])
+            return 
             raw2alpha = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
 
 
