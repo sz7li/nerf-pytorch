@@ -908,7 +908,6 @@ def train():
             sigma_thresh = -np.log(1.0 - alpha_thresh) / approx_delta
 
             print(raw_densities.shape, raw_densities)
-            return 
             # Sample
 
             # Sample Random rays, and log max density of each voxel, or
