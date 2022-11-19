@@ -230,7 +230,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
 def create_tree(center, radius):
     tree = svox.N3Tree(data_dim=16, data_format="RGBA",
                   center=center, radius=radius,
-                  N=2, device="cpu",
+                  N=2, device="cuda",
                   init_refine=0, depth_limit=10,
                   extra_data=None)
     # tree.to("cuda")
@@ -909,10 +909,18 @@ def train():
             print("Raw densities from tree values: ")
             print(raw_densities.shape, raw_densities)
             prev = len(tree.values)
-            tree[torch.where(raw_densities > sigma_thresh)[0]].refine()
-            print("Leaves above sigma threshold: ", torch.where(raw_densities > sigma_thresh)[0])
+            mask = raw_densities > sigma_thresh # in the order of tree.values 
+            where = torch.where(raw_densities > sigma_thresh)[0]
+            
+            tree.refine(sel=(*tree._all_leaves()[mask].T, ))
+
+            # tree.refine(sel=(*tree._all_leaves()[a > 2].T, ))
+
+
+            print("Leaves above sigma threshold: ", torch.where(mask)[0])
             print(raw_densities[torch.where(raw_densities > sigma_thresh)[0]])
             print("Tree refined from ", prev, len(tree.values))
+            return 
             # Sample
 
             # Sample Random rays, and log max density of each voxel, or
