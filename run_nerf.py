@@ -897,7 +897,7 @@ def train():
             network_query_fn = render_kwargs_train['network_query_fn']
             raw = network_query_fn(tree.values[None,], rays_d, render_kwargs_train['network_fine']) # network_fn is model=NeRF(...)
             # we want raw to be [tree_size, 4]
-            print("Network successfully queried with raw shape ", raw.shape)
+            print("Network successfully queried with raw shape ", raw.shape, raw[0][:, 3])
             alpha = raw2alpha(raw[...,3] + 0., dists)  # [N_rays, N_samples]
             print(raw, alpha)
             return 
