@@ -910,7 +910,7 @@ def train():
             print(raw_densities.shape, raw_densities)
             prev = len(tree.values)
             # mask = raw_densities > sigma_thresh # in the order of tree.values 
-            mask = torch.randint(2, size=(1, len(raw_densities)))
+            mask = torch.randint(2, size=(1, len(raw_densities[0])))
             where = torch.where(raw_densities > sigma_thresh)[0]
             print(mask)
             tree.refine(sel=(*tree._all_leaves()[mask].T, ))
