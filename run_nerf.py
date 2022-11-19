@@ -259,7 +259,7 @@ def create_nerf(args, tree): # add tree
                  input_ch=input_ch, output_ch=output_ch, skips=skips,
                  input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device)
     
-    # tree.to('cuda')
+    tree.to('cuda')
     print("Created model with ", [i.shape for i in (model.parameters())])
 
     # todo add tree parameters
