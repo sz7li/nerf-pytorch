@@ -910,29 +910,13 @@ def train():
             print(raw_densities.shape, raw_densities.device, raw_densities)
             prev = len(tree.values)
             # mask = raw_densities > sigma_thresh # in the order of tree.values 
-            mask = torch.randn(512, device='cpu') > 2
-            # where = torch.where(raw_densities > sigma_thresh)[0]
-            print("Mask properties")
-            print(torch.sum(mask), mask.shape, mask.device, mask)
-            print("Tree all leaves")
-            print(tree._all_leaves().shape)
-            # print(tree._all_leaves(), tree._all_leaves().device)
-    
+            # mask = torch.randn(512, device='cpu') > 2
+            mask = torch.where(raw_densities > sigma_thresh)[0]
             sel = tree._all_leaves()[mask].T
-            print("sel shape after masking" , sel.shape, sel.device)
             sel = sel.to(device)
-            # print(sel.to(device))
-            # print(tree.values.device)
-
-            # print(sel.device, device, tree.values.device)
-
             tree.refine(sel=(*sel, ))
-
-            # tree.refine(sel=(*tree._all_leaves()[a > 2].T, ))
-
-
-            print("Leaves above sigma threshold: ", torch.where(mask)[0])
-            print(raw_densities[torch.where(raw_densities > sigma_thresh)[0]])
+            print("Leaves above sigma threshold: ", mask)
+            print(raw_densities[mask])
             print("Tree refined from ", prev, len(tree.values))
             return 
             # Sample
