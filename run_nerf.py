@@ -905,7 +905,7 @@ def train():
             approx_delta = 2.0 / (2 ** 9)
             alpha_thresh = 0.01
 
-            sigma_thresh = -np.log(1.0 - args.alpha_thresh) / approx_delta
+            sigma_thresh = -np.log(1.0 - alpha_thresh) / approx_delta
 
             print(raw_densities.shape, raw_densities)
             return 
