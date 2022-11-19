@@ -910,7 +910,6 @@ def train():
             print(raw_densities.shape, raw_densities.device, raw_densities)
             prev = len(tree.values)
             # mask = raw_densities > sigma_thresh # in the order of tree.values 
-            # mask = torch.randint(2, size=(1, len(raw_densities[0])), device='cpu').reshape(len(raw_densities[0]))
             mask = torch.randn(512, device='cpu') > 2
             # where = torch.where(raw_densities > sigma_thresh)[0]
             print("Mask properties")
@@ -919,7 +918,7 @@ def train():
             print(tree._all_leaves().shape)
             # print(tree._all_leaves(), tree._all_leaves().device)
     
-            sel = tree._all_leaves()[mask]
+            sel = tree._all_leaves()[mask].T
             print("sel shape after masking" , sel.shape, sel.device)
             sel = sel.to(device)
             # print(sel.to(device))
