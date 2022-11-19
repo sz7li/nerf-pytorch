@@ -913,11 +913,13 @@ def train():
             mask = torch.randint(2, size=(1, len(raw_densities[0])), device=device)
             where = torch.where(raw_densities > sigma_thresh)[0]
             print(mask, mask.device)
+            print("Tree all leaves")
             print(tree._all_leaves(), tree._all_leaves().device)
             sel = tree._all_leaves()[mask].T
-            print(sel, sel.device)
             print(sel.to(device))
-            print(sel.device, device, tree.values.device)
+            print(sel, sel.device)
+            
+            # print(sel.device, device, tree.values.device)
 
             tree.refine(sel=(*sel, ))
 
