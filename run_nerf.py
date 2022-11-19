@@ -916,7 +916,7 @@ def train():
             sel = tree._all_leaves()[mask].T
             sel = sel.to(device)
             tree.refine(sel=(*sel, ))
-            print("Leaves above sigma threshold: ", mask)
+            print("Leaves above sigma threshold: ", sigma_thresh, mask)
             print(raw_densities[mask])
             print("Tree refined from ", prev, len(tree.values))
             return 
