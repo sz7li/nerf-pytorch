@@ -917,7 +917,8 @@ def train():
             print(tree._all_leaves(), tree._all_leaves().device)
             sel = tree._all_leaves()[mask].T
             print(sel, sel.device)
-            
+            print(sel.to(device))
+            print(sel, sel.device)
             # print(sel.device, device, tree.values.device)
 
             tree.refine(sel=(*sel, ))
