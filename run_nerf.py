@@ -912,9 +912,10 @@ def train():
             # mask = raw_densities > sigma_thresh # in the order of tree.values 
             mask = torch.randint(2, size=(1, len(raw_densities[0])), device='cpu').reshape(len(raw_densities[0]))
             # where = torch.where(raw_densities > sigma_thresh)[0]
+            print("Mask properties")
             print(torch.sum(mask), mask.shape, mask.device)
             print("Tree all leaves")
-            print(len(tree._all_leaves()))
+            print(tree._all_leaves().shape)
             # print(tree._all_leaves(), tree._all_leaves().device)
     
             sel = tree._all_leaves()[mask]
