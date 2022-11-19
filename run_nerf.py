@@ -259,7 +259,7 @@ def create_nerf(args, tree): # add tree
                  input_ch=input_ch, output_ch=output_ch, skips=skips,
                  input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device)
     
-    tree.to('cuda')
+    # tree.to('cuda')
     print("Created model with ", [i.shape for i in (model.parameters())])
 
     # todo add tree parameters
@@ -887,16 +887,9 @@ def train():
             rays_d = rays_d[200][200][None, ]
             print("Test ray values rays_d", rays_d.shape, rays_d[0])
             
-            raw2alpha = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
-            t_vals = torch.linspace(0., 1., steps=512)
-            z_vals = near * (1.-t_vals) + far * (t_vals)
-            dists = z_vals[...,1:] - z_vals[...,:-1]
-            print(dists)
-            dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
-            print(dists)
             network_query_fn = render_kwargs_train['network_query_fn']
             raw = network_query_fn(tree.values[None,], rays_d, render_kwargs_train['network_fine']) # network_fn is model=NeRF(...)
-            # we want raw to be [tree_size, 4]
+            # we want raw to be [tree_size, 4], tree.values SHOULD be in the same order as tree._all_leaves
             print("Network successfully queried with raw shape ", raw.shape, raw[0][:, 3])
 
             raw_densities = F.relu(raw[...,3])
@@ -906,20 +899,27 @@ def train():
             alpha_thresh = 0.01
 
             sigma_thresh = -np.log(1.0 - alpha_thresh) / approx_delta
-            print("Raw densities from tree values: ")
-            print(raw_densities.shape, raw_densities.device, raw_densities)
+            print("Raw densities (with F.relu applied) from tree values: ")
+            print(raw_densities.shape, raw_densities.device)
             prev = len(tree.values)
             # mask = raw_densities > sigma_thresh # in the order of tree.values 
             # mask = torch.randn(512, device='cpu') > 2
             mask = torch.where(raw_densities > sigma_thresh)[0]
-            mask = mask.to('cpu')
-            sel = tree._all_leaves()[mask].T
+            mask = mask.to('cpu') # _all_leaves 
+            sel = tree._all_leaves()[mask].T # should be the same order as tree.values from before
             sel = sel.to(device)
-            tree.refine(sel=(*sel, ))
+            tree.refine(sel=(*sel, )) # not really sure if there's a better way to do the refine -> found this 
             print("Leaves above sigma threshold: ", sigma_thresh, mask)
             print(raw_densities[mask])
             print("Tree refined from ", prev, len(tree.values))
-            return 
+            print(optimizer.param_groups)
+            return
+            # if len(tree.values) > prev:
+                
+
+
+                # update optimizer
+
             # Sample
 
             # Sample Random rays, and log max density of each voxel, or
