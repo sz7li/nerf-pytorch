@@ -912,8 +912,8 @@ def train():
             # mask = raw_densities > sigma_thresh # in the order of tree.values 
             mask = torch.randint(2, size=(1, len(raw_densities[0])))
             where = torch.where(raw_densities > sigma_thresh)[0]
-            print(mask)
-            mask.to('cpu')
+            print(mask, mask.device)
+            print(tree._all_leaves(), tree._all_leaves().device)
             sel = tree._all_leaves()[mask].T
             sel.to(device)
             tree.refine(sel=(*sel, ))
