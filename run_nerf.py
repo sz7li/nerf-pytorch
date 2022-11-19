@@ -888,7 +888,7 @@ def train():
             print("Test ray values rays_d", rays_d.shape, rays_d[0])
             
             raw2alpha = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
-            t_vals = torch.linspace(0., 1., steps=64)
+            t_vals = torch.linspace(0., 1., steps=512)
             z_vals = near * (1.-t_vals) + far * (t_vals)
             dists = z_vals[...,1:] - z_vals[...,:-1]
             print(dists)
@@ -897,7 +897,7 @@ def train():
             network_query_fn = render_kwargs_train['network_query_fn']
             raw = network_query_fn(tree.values[None,], rays_d, render_kwargs_train['network_fine']) # network_fn is model=NeRF(...)
             # we want raw to be [tree_size, 4]
-            print("Network successfully queried")
+            print("Network successfully queried with raw shape ", raw.shape)
             alpha = raw2alpha(raw[...,3] + 0., dists)  # [N_rays, N_samples]
             print(raw, alpha)
             return 
