@@ -909,9 +909,10 @@ def train():
             print("Raw densities from tree values: ")
             print(raw_densities.shape, raw_densities)
             prev = len(tree.values)
-            mask = raw_densities > sigma_thresh # in the order of tree.values 
+            # mask = raw_densities > sigma_thresh # in the order of tree.values 
+            mask = torch.randint(2, size=(len(raw_densities)))
             where = torch.where(raw_densities > sigma_thresh)[0]
-            
+            print(mask)
             tree.refine(sel=(*tree._all_leaves()[mask].T, ))
 
             # tree.refine(sel=(*tree._all_leaves()[a > 2].T, ))
