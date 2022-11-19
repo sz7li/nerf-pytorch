@@ -906,8 +906,13 @@ def train():
             alpha_thresh = 0.01
 
             sigma_thresh = -np.log(1.0 - alpha_thresh) / approx_delta
-
+            print("Raw densities from tree values: ")
             print(raw_densities.shape, raw_densities)
+            prev = len(tree.values)
+            tree[torch.where(raw_densities > sigma_thresh)[0]].refine()
+            print("Leaves above sigma threshold: ", torch.where(raw_densities > sigma_thresh)[0])
+            print(raw_densities[torch.where(raw_densities > sigma_thresh)[0]])
+            print("Tree refined from ", prev, len(tree.values))
             # Sample
 
             # Sample Random rays, and log max density of each voxel, or
