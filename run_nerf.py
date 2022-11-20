@@ -895,6 +895,7 @@ def train():
     start = start + 1
     for i in trange(start, N_iters):
         time0 = time.time()
+        return
 
         if i % 500 == 0:
 
