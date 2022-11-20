@@ -1060,7 +1060,7 @@ def train():
             # Turn on testing mode
             with torch.no_grad():
                 # args.chunk is originally 1024 * 32 but hardcode to 512 * 32 here
-                test_chunk_size = 512 * 32
+                test_chunk_size = 256 * 32
                 rgbs, disps = render_path(render_poses, hwf, K, test_chunk_size, render_kwargs_test)
             print('Done, saving', rgbs.shape, disps.shape)
             moviebase = os.path.join(basedir, expname, '{}_spiral_{:06d}_'.format(expname, i))
