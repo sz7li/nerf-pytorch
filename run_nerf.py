@@ -915,7 +915,11 @@ def train():
             for k in optimizer.param_groups[0].keys():
                 if k is not 'params':
                     print(k, optimizer.param_groups[0][k])
-            print(optimizer.param_groups[0].keys())
+            
+            for p in optimizer.param_groups[0]['params']:
+                print(p.shape)
+
+                
             return
             # if len(tree.values) > prev:
                 
