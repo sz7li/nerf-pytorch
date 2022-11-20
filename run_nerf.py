@@ -881,7 +881,7 @@ def train():
     for i in trange(start, N_iters):
         time0 = time.time()
 
-        if i % 10 == 0:
+        if i % 500 == 0:
 
             print(f"Saving tree at iteration {i}")
             rays_o, rays_d = get_rays(H, W, K, torch.Tensor(temp_pose[:3,:4]))
@@ -914,6 +914,9 @@ def train():
             print(raw_densities[mask])
             print("Tree refined from ", prev, len(tree.values))
 
+            tree.save(f"tree_11_19/tree_iter_{i}", shrink=True, compress=True)
+
+
             for k, v in optimizer.param_groups[0].items():
                 if k != 'params':
                     print(k, v)
@@ -936,7 +939,7 @@ def train():
                 else:
                     for p in v:
                         print(p.shape)    
-            return
+
             # if len(tree.values) > prev:
                 
             # Sample
