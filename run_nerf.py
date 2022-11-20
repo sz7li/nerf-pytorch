@@ -653,9 +653,9 @@ def config_parser():
                         help='frequency of tensorboard image logging')
     parser.add_argument("--i_weights", type=int, default=500, 
                         help='frequency of weight ckpt saving')
-    parser.add_argument("--i_testset", type=int, default=50000, 
+    parser.add_argument("--i_testset", type=int, default=500, 
                         help='frequency of testset saving')
-    parser.add_argument("--i_video",   type=int, default=50, 
+    parser.add_argument("--i_video",   type=int, default=10000, 
                         help='frequency of render_poses video saving')
 
     return parser
@@ -817,7 +817,11 @@ def train():
     # Short circuit if only rendering out from trained model
     if args.render_only:
         print('RENDER ONLY')
-        tree = svox.N3Tree.load("tree_test/tree_iter_50000.npz", device=device)
+        a = list(map(lambda x: x.split('_'), os.listdir('tree_11_19')))
+        a = list(filter(lambda x: len(x) > 2, a))
+        a = list(map(lambda x: int(x[2].split('.')[0]), a))
+        most_recent = 'tree_iter_' + str(max(a)) + '.npz'
+        tree = svox.N3Tree.load(f"tree_test/{most_recent}", device=device)
         render_kwargs_test['tree'] = tree
         with torch.no_grad():
             if args.render_test:
