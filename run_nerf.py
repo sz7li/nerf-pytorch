@@ -835,6 +835,7 @@ def train():
             os.makedirs(testsavedir, exist_ok=True)
             print('test poses shape', render_poses.shape)
             test_chunk_size = 256 * 32
+            print("RENDERING with test chunk size", test_chunk_size)
             rgbs, _ = render_path(render_poses, hwf, K, test_chunk_size, render_kwargs_test, gt_imgs=images, savedir=testsavedir, render_factor=args.render_factor)
             print('Done rendering', testsavedir)
             imageio.mimwrite(os.path.join(testsavedir, 'video.mp4'), to8b(rgbs), fps=30, quality=8)
