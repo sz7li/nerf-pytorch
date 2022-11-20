@@ -665,7 +665,7 @@ def config_parser():
                         help='frequency of weight ckpt saving')
     parser.add_argument("--i_testset", type=int, default=10000, 
                         help='frequency of testset saving')
-    parser.add_argument("--i_video",   type=int, default=250, 
+    parser.add_argument("--i_video",   type=int, default=500, 
                         help='frequency of render_poses video saving')
 
     return parser
@@ -896,7 +896,6 @@ def train():
     start = start + 1
     for i in trange(start, N_iters):
         time0 = time.time()
-        return
 
         if i % 500 == 0:
 
@@ -934,7 +933,7 @@ def train():
             print(raw_densities[mask])
             print("Tree refined from ", prev, len(tree.values))
 
-            tree.save(f"tree_11_19/tree_iter_{i}", shrink=True, compress=True)
+            tree.save(f"{tree_file_path}/tree_iter_{i}", shrink=True, compress=True)
 
 
             for k, v in optimizer.param_groups[0].items():
