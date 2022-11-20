@@ -915,7 +915,7 @@ def train():
             print("Tree refined from ", prev, len(tree.values))
 
             for k, v in optimizer.param_groups[0].items():
-                if k is not 'params':
+                if k != 'params':
                     print(k, v)
                 else:
                     for p in v:
@@ -931,25 +931,14 @@ def train():
             print("UPDATED OPTIMIZER")
 
             for k, v in optimizer.param_groups[0].items():
-                if k is not 'params':
+                if k != 'params':
                     print(k, v)
                 else:
                     for p in v:
-                        print(p.shape)
-            
-
-            
-            # for p in optimizer.param_groups[0]['params']:
-            #     print(p.shape)
-
-                
+                        print(p.shape)    
             return
             # if len(tree.values) > prev:
                 
-
-
-                # update optimizer
-
             # Sample
 
             # Sample Random rays, and log max density of each voxel, or
