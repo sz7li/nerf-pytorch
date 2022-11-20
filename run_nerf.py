@@ -229,7 +229,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
 
 
 def create_tree(center, radius):
-    tree = svox.N3Tree(data_dim=12, data_format="RGBA",
+    tree = svox.N3Tree(data_dim=16, data_format="RGBA",
                   center=center, radius=radius,
                   N=2, device="cpu",
                   init_refine=0, depth_limit=10,
@@ -248,7 +248,7 @@ def find_bounds():
 def create_nerf(args, tree): # add tree
     """Instantiate NeRF's MLP model.
     """
-    embed_fn, input_ch = get_embedder(args.multires, 12, args.i_embed)
+    embed_fn, input_ch = get_embedder(args.multires, 16, args.i_embed)
 
     input_ch_views = 0
     embeddirs_fn = None
@@ -1059,7 +1059,9 @@ def train():
         if i%args.i_video==0 and i > 0:
             # Turn on testing mode
             with torch.no_grad():
-                rgbs, disps = render_path(render_poses, hwf, K, args.chunk, render_kwargs_test)
+                # args.chunk is originally 1024 * 32 but hardcode to 512 * 32 here
+                test_chunk_size = 512 * 32
+                rgbs, disps = render_path(render_poses, hwf, K, test_chunk_size, render_kwargs_test)
             print('Done, saving', rgbs.shape, disps.shape)
             moviebase = os.path.join(basedir, expname, '{}_spiral_{:06d}_'.format(expname, i))
             imageio.mimwrite(moviebase + 'rgb.mp4', to8b(rgbs), fps=30, quality=8)
