@@ -321,6 +321,7 @@ def create_nerf(args, tree): # add tree
         'use_viewdirs' : args.use_viewdirs,
         'white_bkgd' : args.white_bkgd,
         'raw_noise_std' : args.raw_noise_std,
+        'tree': tree
     }
 
     # NDC only good for LLFF-style forward facing data
@@ -874,7 +875,7 @@ def train():
     # Summary writers
     # writer = SummaryWriter(os.path.join(basedir, 'summaries', expname))
     
-    render_kwargs_train['tree'] = tree
+    # render_kwargs_train['tree'] = tree
     print("render kwargs train", render_kwargs_train)
 
     start = start + 1
