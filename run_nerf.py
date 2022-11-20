@@ -907,7 +907,7 @@ def train():
 
             sigma_thresh = -np.log(1.0 - alpha_thresh) / approx_delta
             print("Top 50 raw densities (with F.relu applied) from tree values: ")
-            print(torch.topk(raw_densities, 5).values)
+            print(torch.topk(raw_densities, 50).values)
 
             raw_densities[0]
 
