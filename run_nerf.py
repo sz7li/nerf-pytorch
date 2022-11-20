@@ -10,6 +10,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from tqdm import tqdm, trange
 import scipy
+import itertools as it
 
 import matplotlib.pyplot as plt
 
@@ -912,12 +913,34 @@ def train():
             print("Leaves above sigma threshold: ", sigma_thresh, mask)
             print(raw_densities[mask])
             print("Tree refined from ", prev, len(tree.values))
-            for k in optimizer.param_groups[0].keys():
+
+            for k, v in optimizer.param_groups[0].items():
                 if k is not 'params':
-                    print(k, optimizer.param_groups[0][k])
+                    print(k, v)
+                else:
+                    for p in v:
+                        print(p.shape)
+
+            model_c = render_kwargs_train['network_fn']
+            model_f = render_kwargs_train['network_fine']
+
+            grad_vars = it.chain(model_c.parameters(), tree.parameters(), model_f.parameters())
+
+            del optimizer.param_groups[0]['params']
+
+            optimizer.param_groups[0]['params'] = grad_vars
+
+            for k, v in optimizer.param_groups[0].items():
+                if k is not 'params':
+                    print(k, v)
+                else:
+                    for p in v:
+                        print(p.shape)
             
-            for p in optimizer.param_groups[0]['params']:
-                print(p.shape)
+
+            
+            # for p in optimizer.param_groups[0]['params']:
+            #     print(p.shape)
 
                 
             return
