@@ -925,11 +925,10 @@ def train():
             model_f = render_kwargs_train['network_fine']
 
             grad_vars = it.chain(model_c.parameters(), tree.parameters(), model_f.parameters())
+            lr = optimizer.param_groups[0]['lr']
+            optimizer = torch.optim.Adam(params=grad_vars, lr=lr, betas=(0.9, 0.999))
 
-            del optimizer.param_groups[0]['params']
-
-            optimizer.param_groups[0]['params'] = grad_vars
-            print("updated optimizer")
+            print("UPDATED OPTIMIZER")
 
             for k, v in optimizer.param_groups[0].items():
                 if k is not 'params':
