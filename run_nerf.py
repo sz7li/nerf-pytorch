@@ -929,6 +929,7 @@ def train():
             del optimizer.param_groups[0]['params']
 
             optimizer.param_groups[0]['params'] = grad_vars
+            print("updated optimizer")
 
             for k, v in optimizer.param_groups[0].items():
                 if k is not 'params':
