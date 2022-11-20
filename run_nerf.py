@@ -912,7 +912,7 @@ def train():
             print("Leaves above sigma threshold: ", sigma_thresh, mask)
             print(raw_densities[mask])
             print("Tree refined from ", prev, len(tree.values))
-            print(len(optimizer.param_groups))
+            print(optimizer.param_groups[0][-1])
             return
             # if len(tree.values) > prev:
                 
