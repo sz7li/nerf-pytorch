@@ -26,6 +26,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 np.random.seed(0)
 DEBUG = False
 
+tree_file_path = 'tree_11_19_1'
+
 def set_values_for_tree(pts, alpha, tree):
     batch_size, N_samples, dim = pts.shape[0], pts.shape[1], pts.shape[2]
     pts_reshape = pts.reshape(batch_size * N_samples, dim) # [1024x64, 3]
@@ -300,6 +302,13 @@ def create_nerf(args, tree): # add tree
         ckpt_path = ckpts[-1]
         print('Reloading from', ckpt_path)
         ckpt = torch.load(ckpt_path)
+
+        print("Loading tree")
+        a = list(map(lambda x: x.split('_'), os.listdir(tree_file_path)))
+        a = list(filter(lambda x: len(x) > 2, a))
+        a = list(map(lambda x: int(x[2].split('.')[0]), a))
+        most_recent = 'tree_iter_' + str(max(a)) + '.npz'
+        tree = svox.N3Tree.load(f"{tree_file_path}/{most_recent}", device=device)
 
         start = ckpt['global_step']
         optimizer.load_state_dict(ckpt['optimizer_state_dict'])
@@ -655,7 +664,7 @@ def config_parser():
                         help='frequency of weight ckpt saving')
     parser.add_argument("--i_testset", type=int, default=10000, 
                         help='frequency of testset saving')
-    parser.add_argument("--i_video",   type=int, default=10000, 
+    parser.add_argument("--i_video",   type=int, default=250, 
                         help='frequency of render_poses video saving')
 
     return parser
@@ -817,11 +826,11 @@ def train():
     # Short circuit if only rendering out from trained model
     if args.render_only:
         print('RENDER ONLY')
-        a = list(map(lambda x: x.split('_'), os.listdir('tree_11_19')))
+        a = list(map(lambda x: x.split('_'), os.listdir(tree_file_path)))
         a = list(filter(lambda x: len(x) > 2, a))
         a = list(map(lambda x: int(x[2].split('.')[0]), a))
         most_recent = 'tree_iter_' + str(max(a)) + '.npz'
-        tree = svox.N3Tree.load(f"tree_test/{most_recent}", device=device)
+        tree = svox.N3Tree.load(f"{tree_file_path}/{most_recent}", device=device)
         render_kwargs_test['tree'] = tree
         with torch.no_grad():
             if args.render_test:
