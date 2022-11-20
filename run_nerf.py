@@ -229,7 +229,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
 
 
 def create_tree(center, radius):
-    tree = svox.N3Tree(data_dim=16, data_format="RGBA",
+    tree = svox.N3Tree(data_dim=12, data_format="RGBA",
                   center=center, radius=radius,
                   N=2, device="cpu",
                   init_refine=0, depth_limit=10,
@@ -248,7 +248,7 @@ def find_bounds():
 def create_nerf(args, tree): # add tree
     """Instantiate NeRF's MLP model.
     """
-    embed_fn, input_ch = get_embedder(args.multires, 16, args.i_embed)
+    embed_fn, input_ch = get_embedder(args.multires, 12, args.i_embed)
 
     input_ch_views = 0
     embeddirs_fn = None
@@ -598,7 +598,7 @@ def config_parser():
                         help='use full 5D input instead of 3D')
     parser.add_argument("--i_embed", type=int, default=0, 
                         help='set 0 for default positional encoding, -1 for none')
-    parser.add_argument("--multires", type=int, default=10, 
+    parser.add_argument("--multires", type=int, default=8, 
                         help='log2 of max freq for positional encoding (3D location)')
     parser.add_argument("--multires_views", type=int, default=4, 
                         help='log2 of max freq for positional encoding (2D direction)')
