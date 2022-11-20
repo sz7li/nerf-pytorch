@@ -911,13 +911,14 @@ def train():
             # we want raw to be [tree_size, 4], tree.values SHOULD be in the same order as tree._all_leaves
             print("Network successfully queried with raw shape ", raw.shape, raw[0][:, 3][:50])
 
-            raw_densities = F.relu(raw[...,3])
+            raw_densities = F.relu(raw[...,3])[0]
             # alpha = raw2alpha(raw[...,3] + 0., dists)  # [N_rays, N_samples]
 
             approx_delta = 2.0 / (2 ** 9)
             alpha_thresh = 0.01
 
-            sigma_thresh = -np.log(1.0 - alpha_thresh) / approx_delta
+            # sigma_thresh = -np.log(1.0 - alpha_thresh) / approx_delta
+            sigma_thresh = 1.
             print("Top 50 raw densities (with F.relu applied) from tree values: ")
             print(raw_densities.shape)
             print(torch.topk(raw_densities, 50).values)
