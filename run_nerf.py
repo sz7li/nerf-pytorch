@@ -806,7 +806,9 @@ def train():
     tree = create_tree(center, radius)
     for i in range(2):
         tree.refine()
+    tree.uniform_()
     print("Tree created with size ", len(tree.values))
+    print(tree.values[0])
     # tree = tree.load("tree_iter_9725.npz")
     
     # Create nerf model
