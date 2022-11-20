@@ -653,7 +653,7 @@ def config_parser():
                         help='frequency of tensorboard image logging')
     parser.add_argument("--i_weights", type=int, default=500, 
                         help='frequency of weight ckpt saving')
-    parser.add_argument("--i_testset", type=int, default=500, 
+    parser.add_argument("--i_testset", type=int, default=10000, 
                         help='frequency of testset saving')
     parser.add_argument("--i_video",   type=int, default=10000, 
                         help='frequency of render_poses video saving')
@@ -906,8 +906,11 @@ def train():
             alpha_thresh = 0.01
 
             sigma_thresh = -np.log(1.0 - alpha_thresh) / approx_delta
-            print("Raw densities (with F.relu applied) from tree values: ")
-            print(raw_densities.shape, raw_densities.device)
+            print("Top 50 raw densities (with F.relu applied) from tree values: ")
+            print(torch.topk(raw_densities, 5).values)
+
+            raw_densities[0]
+
             prev = len(tree.values)
             # mask = raw_densities > sigma_thresh # in the order of tree.values 
             # mask = torch.randn(512, device='cpu') > 2
