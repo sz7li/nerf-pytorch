@@ -654,7 +654,7 @@ def config_parser():
                         help='frequency of weight ckpt saving')
     parser.add_argument("--i_testset", type=int, default=50000, 
                         help='frequency of testset saving')
-    parser.add_argument("--i_video",   type=int, default=50000, 
+    parser.add_argument("--i_video",   type=int, default=500, 
                         help='frequency of render_poses video saving')
 
     return parser
@@ -906,7 +906,7 @@ def train():
             # mask = raw_densities > sigma_thresh # in the order of tree.values 
             # mask = torch.randn(512, device='cpu') > 2
             mask = torch.where(raw_densities > sigma_thresh)[0]
-            mask = mask.to('cpu') # _all_leaves 
+            mask = mask.to('cpu') # _all_leaves are cpu only
             sel = tree._all_leaves()[mask].T # should be the same order as tree.values from before
             sel = sel.to(device)
             tree.refine(sel=(*sel, )) # not really sure if there's a better way to do the refine -> found this 
