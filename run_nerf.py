@@ -309,6 +309,7 @@ def create_nerf(args, tree): # add tree
         a = list(map(lambda x: int(x[2].split('.')[0]), a))
         most_recent = 'tree_iter_' + str(max(a)) + '.npz'
         tree = svox.N3Tree.load(f"{tree_file_path}/{most_recent}", device=device)
+        print("loaded tree: ", f"{tree_file_path}/{most_recent}")
 
         start = ckpt['global_step']
         optimizer.load_state_dict(ckpt['optimizer_state_dict'])
