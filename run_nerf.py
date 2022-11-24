@@ -899,7 +899,7 @@ def train():
     for i in trange(start, N_iters):
         time0 = time.time()
 
-        if i % 500 == 0:
+        if i % 50000 == 0:
 
             print(f"Saving tree at iteration {i}")
             rays_o, rays_d = get_rays(H, W, K, torch.Tensor(temp_pose[:3,:4]))
@@ -929,6 +929,7 @@ def train():
             mask = torch.where(raw_densities > sigma_thresh)[0]
             mask = mask.to('cpu') # _all_leaves are cpu only
             sel = tree._all_leaves()[mask].T # should be the same order as tree.values from before
+
             sel = sel.to(device)
             tree.refine(sel=(*sel, )) # not really sure if there's a better way to do the refine -> found this 
             print("Leaves above sigma threshold: ", sigma_thresh, mask)
