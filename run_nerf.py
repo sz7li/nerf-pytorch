@@ -55,7 +55,6 @@ def get_features_from_rays(pts, tree):
     pts_reshape = pts.reshape(batch_size * N_samples, dim)
     forward, node_ids = tree.forward(pts_reshape, want_node_ids=True)
     print(node_ids)
-    raise ValueError
     forward = forward.reshape(batch_size, N_samples, tree.data_dim)
 
     print("Returning tree forward with shape", forward.shape)
@@ -511,8 +510,10 @@ def render_rays(ray_batch,
         return tmin, tmax
 
     invdirs = 1.0 / (rays_d + 1e-9)
-    # t, tmax = dda_unit(rays_o, invdirs)
-    # print(t.shape, tmax.shape)
+    t, tmax = dda_unit(rays_o, invdirs)
+    print(t.shape, tmax.shape)
+    print(t <= tmax)
+    print(torch.sum(t <= tmax))
     # print(tmax-t)
 
     features_at_intersections = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
