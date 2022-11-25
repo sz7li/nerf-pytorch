@@ -510,7 +510,7 @@ def render_rays(ray_batch,
     invdirs = 1.0 / (rays_d + 1e-9)
     t, tmax = dda_unit(rays_o, invdirs)
     print(t.shape, tmax.shape)
-    print(t, tmax)
+    print(tmax-t)
 
     features_at_intersections = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
     # print(features_at_intersections)
