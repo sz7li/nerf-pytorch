@@ -460,6 +460,7 @@ def render_rays(ray_batch,
     z_vals = z_vals.expand([N_rays, N_samples])
 
     if perturb > 0.:
+        print("Perturbing")
         # get intervals between samples
         mids = .5 * (z_vals[...,1:] + z_vals[...,:-1])
         upper = torch.cat([mids, z_vals[...,-1:]], -1)
@@ -472,12 +473,11 @@ def render_rays(ray_batch,
             np.random.seed(0)
             t_rand = np.random.rand(*list(z_vals.shape))
             t_rand = torch.Tensor(t_rand)
-
+        print(z_vals)
         z_vals = lower + (upper - lower) * t_rand
+        print(z_vals)
 
-    # print(rays_o)
-    # print(rays_d)
-    print(z_vals)
+    
     pts = rays_o[...,None,:] + rays_d[...,None,:] * z_vals[...,:,None] # [N_rays, N_samples, 3]
 
 
