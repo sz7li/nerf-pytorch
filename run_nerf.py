@@ -489,6 +489,28 @@ def render_rays(ray_batch,
     print("pts and viewdirs dimensions ", pts.shape, viewdirs.shape)
 
     # get features from rays
+    def dda_unit(cen, invdir):
+        """
+        voxel aabb ray tracing step
+        :param cen: jnp.ndarray [B, 3] center
+        :param invdir: jnp.ndarray [B, 3] 1/dir
+        :return: tmin jnp.ndarray [B] at least 0;
+                tmax jnp.ndarray [B]
+        """
+        B = invdir.shape[0]
+        tmin = torch.zeros((B,), dtype=cen.dtype, device=cen.device)
+        tmax = torch.full((B,), fill_value=1e9, dtype=cen.dtype, device=cen.device)
+        for i in range(3):
+            t1 = -cen[..., i] * invdir[..., i]
+            t2 = t1 + invdir[..., i]
+            tmin = torch.max(tmin, torch.min(t1, t2))
+            tmax = torch.min(tmax, torch.max(t1, t2))
+        return tmin, tmax
+
+    invdirs = 1.0 / (rays_d + 1e-9)
+    t, tmax = dda_unit(rays_o, invdirs)
+    print(t, tmax)
+
     features_at_intersections = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
     print(features_at_intersections)
     # new_pts = get_features_from_rays(pts)
