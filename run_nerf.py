@@ -460,7 +460,7 @@ def render_rays(ray_batch,
     z_vals = z_vals.expand([N_rays, N_samples])
 
     if perturb > 0.:
-        print("Perturbing")
+        print("Perturbing", N_importance)
         # get intervals between samples
         mids = .5 * (z_vals[...,1:] + z_vals[...,:-1])
         upper = torch.cat([mids, z_vals[...,-1:]], -1)
@@ -489,6 +489,7 @@ def render_rays(ray_batch,
     print("pts and viewdirs dimensions ", pts.shape, viewdirs.shape)
 
     # get features from rays
+
     def dda_unit(cen, invdir):
         """
         voxel aabb ray tracing step
