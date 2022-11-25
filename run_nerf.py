@@ -487,6 +487,7 @@ def render_rays(ray_batch,
 
     # get features from rays
     features_at_intersections = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
+    print(features_at_intersections)
     # new_pts = get_features_from_rays(pts)
     raise ValueError
     # 
