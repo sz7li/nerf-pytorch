@@ -488,8 +488,10 @@ def render_rays(ray_batch,
     # get features from rays
     features_at_intersections = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
     # new_pts = get_features_from_rays(pts)
+    raise ValueError
     # 
     raw = network_query_fn(features_at_intersections, viewdirs, network_fn) # network_fn is model=NeRF(...)
+    
     print("RAW out")
     #
     #
@@ -899,7 +901,7 @@ def train():
     for i in trange(start, N_iters):
         time0 = time.time()
 
-        if i % 50000 == 0:
+        if i % 10000 == 0:
 
             print(f"Saving tree at iteration {i}")
             rays_o, rays_d = get_rays(H, W, K, torch.Tensor(temp_pose[:3,:4]))

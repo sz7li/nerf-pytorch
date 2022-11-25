@@ -72,6 +72,8 @@ def get_embedder(multires, input_dims, i=0):
     embed = lambda x, eo=embedder_obj : eo.embed(x)
     return embed, embedder_obj.out_dim
 
+class Voxel_NN(nn.Module):
+    
 
 # Model
 class NeRF(nn.Module):
