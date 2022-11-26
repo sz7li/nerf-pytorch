@@ -64,7 +64,7 @@ def get_features_from_rays(pts, tree):
 
     print("Returning tree forward with shape", forward.shape)
 
-    return forward
+    return forward, tree.corners[node_ids]
 
 def batchify(fn, chunk):
     """Constructs a version of 'fn' that applies to smaller batches.
@@ -521,10 +521,11 @@ def render_rays(ray_batch,
     # t, tmax = dda_unit(rays_o, invdirs)
     # print(tmax-t)
 
-    features_at_intersections = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
+    features_at_intersections, corners = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
     # print(features_at_intersections)
     # new_pts = get_features_from_rays(pts)
     raw = network_query_fn(features_at_intersections,viewdirs, network_fn)
+    print(corners[0])
     '''
     network_query_fn = lambda inputs, viewdirs, network_fn : run_network(inputs, viewdirs, network_fn,
                                                                 embed_fn=embed_fn,
