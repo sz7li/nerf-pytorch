@@ -519,7 +519,7 @@ def render_rays(ray_batch,
     features_at_intersections = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
     # print(features_at_intersections)
     # new_pts = get_features_from_rays(pts)
-    raw = network_query_fn(features_at_intersections, network_fn)
+    raw = network_query_fn(features_at_intersections,viewdirs, network_fn)
     renderer = svox.VolumeRenderer(tree)
     print(renderer)
 
