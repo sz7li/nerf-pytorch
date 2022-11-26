@@ -854,7 +854,7 @@ def train():
     radius = np.sqrt(np.sum((bbox[0] - bbox[1]) ** 2) / 2) / 2
     # Create tree model
     tree = create_tree(center, radius)
-    for i in range(2):
+    for i in range(1):
         tree.refine()
     tree.uniform_()
     print("Tree created with size ", len(tree.values))
