@@ -524,13 +524,13 @@ def render_rays(ray_batch,
     # print(features_at_intersections)
     # new_pts = get_features_from_rays(pts)
     raw = network_query_fn(features_at_intersections,viewdirs, network_fn)
-    renderer = svox.VolumeRenderer(tree)
-    rays = Rays(
-            origins=rays_o,
-            dirs=rays_d,
-            viewdirs=viewdirs
-        )
-    print(renderer.forward(rays, cuda=False))
+    '''
+    network_query_fn = lambda inputs, viewdirs, network_fn : run_network(inputs, viewdirs, network_fn,
+                                                                embed_fn=embed_fn,
+                                                                embeddirs_fn=embeddirs_fn,
+                                                                netchunk=args.netchunk)
+    '''
+    
 
     raise ValueError
     # 
@@ -644,7 +644,7 @@ def config_parser():
                         help='specific weights npy file to reload for coarse network')
 
     # rendering options
-    parser.add_argument("--N_samples", type=int, default=64, 
+    parser.add_argument("--N_samples", type=int, default=128, 
                         help='number of coarse samples per ray')
     parser.add_argument("--N_importance", type=int, default=0,
                         help='number of additional fine samples per ray')
