@@ -25,6 +25,8 @@ from load_LINEMOD import load_LINEMOD_data
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 np.random.seed(0)
 DEBUG = False
+Rays = namedtuple('Rays', ["origins", "dirs", "viewdirs"])
+
 
 tree_file_path = 'tree_11_19_2'
 
@@ -522,6 +524,12 @@ def render_rays(ray_batch,
     raw = network_query_fn(features_at_intersections,viewdirs, network_fn)
     renderer = svox.VolumeRenderer(tree)
     print(renderer)
+    rays = Rays(
+            origins=rays_o,
+            dirs=rays_d,
+            viewdirs=viewdirs
+        )
+    print(rays)
 
     raise ValueError
     # 
