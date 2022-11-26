@@ -525,13 +525,12 @@ def render_rays(ray_batch,
     # new_pts = get_features_from_rays(pts)
     raw = network_query_fn(features_at_intersections,viewdirs, network_fn)
     renderer = svox.VolumeRenderer(tree)
-    print(renderer)
     rays = Rays(
             origins=rays_o,
             dirs=rays_d,
             viewdirs=viewdirs
         )
-    print(rays)
+    print(renderer.forward(rays))
 
     raise ValueError
     # 
