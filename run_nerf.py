@@ -11,6 +11,8 @@ import torch.nn.functional as F
 from tqdm import tqdm, trange
 import scipy
 import itertools as it
+from collections import namedtuple
+
 
 import matplotlib.pyplot as plt
 
