@@ -530,7 +530,7 @@ def render_rays(ray_batch,
             dirs=rays_d,
             viewdirs=viewdirs
         )
-    print(renderer.forward(rays))
+    print(renderer.forward(rays, cuda=False))
 
     raise ValueError
     # 
