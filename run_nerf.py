@@ -58,13 +58,15 @@ def get_features_from_rays(pts, tree):
     batch_size, N_samples, dim = pts.shape[0], pts.shape[1], pts.shape[2]
     pts_reshape = pts.reshape(batch_size * N_samples, dim)
     forward, node_ids = tree.forward(pts_reshape, want_node_ids=True)
+    corners = tree.corners[node_ids]
     print(node_ids)
-    print(tree.corners[node_ids].shape)
+    print(corners.shape)
+    corners = corners.reshape(batch_size, N_samples, 3)
     forward = forward.reshape(batch_size, N_samples, tree.data_dim)
 
-    print("Returning tree forward with shape", forward.shape)
+    print("Returning tree forward and corner with shape", forward.shape, corners.shape)
 
-    return forward, tree.corners[node_ids]
+    return forward, corners
 
 def batchify(fn, chunk):
     """Constructs a version of 'fn' that applies to smaller batches.
