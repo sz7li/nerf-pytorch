@@ -941,7 +941,7 @@ def train():
     # writer = SummaryWriter(os.path.join(basedir, 'summaries', expname))
     
     # render_kwargs_train['tree'] = tree
-    print("render kwargs train", render_kwargs_train)
+    print("render kwargs train", render_kwargs_train.keys())
 
     start = start + 1
     for i in trange(start, N_iters):
