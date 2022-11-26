@@ -857,7 +857,7 @@ def train():
     for i in range(1):
         tree.refine()
     tree.uniform_()
-    print("Tree created with size ", len(tree.values))
+    print("Tree created with size using center and radius ", len(tree.values), center, radius)
     print(tree.values[0])
     # tree = tree.load("tree_iter_9725.npz")
     
