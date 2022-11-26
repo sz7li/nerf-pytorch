@@ -104,8 +104,10 @@ def batchify_rays(rays_flat, chunk=1024*32, **kwargs):
     """
     print("batchify rays:", rays_flat.shape) # [1024, 11]
     all_ret = {}
+    print("BEFORE RENDER RAYS KWARGS", kwargs)
     for i in range(0, rays_flat.shape[0], chunk):
         ret = render_rays(rays_flat[i:i+chunk], **kwargs)
+        
         # render_rays  {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
         for k in ret:
             if k not in all_ret:
