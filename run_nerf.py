@@ -1075,6 +1075,7 @@ def train():
         print(W)
         print(K)
         print("Batch rays shape", batch_rays.shape) # [2, 1024, 3]
+        print(render_kwargs_train.keys(), render_kwargs_train['N_samples'])
         # print(rays_o, rays_o.shape) # all the same
         # print(rays_d, rays_d.shape)
         # rays_0 is [1024, 3] but are all the same
