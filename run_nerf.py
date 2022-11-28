@@ -534,7 +534,7 @@ def render_rays(ray_batch,
 
     fig = plt.figure(figsize=(12, 8))
     ax = fig.add_subplot(1,1,1, projection='3d')
-    for i, pt in enumerate(pts):
+    for i, pt in enumerate(pts.cpu().numpy()):
     #     print(o[0], (rays_d[i][0] - o[0]) / 100000)
         line, = ax.plot(
             [pt[0][0], pt[-1][0]],
