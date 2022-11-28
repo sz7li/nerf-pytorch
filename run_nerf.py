@@ -60,9 +60,9 @@ def get_features_from_rays(pts, tree):
     pts_reshape = pts.reshape(batch_size * N_samples, dim)
     forward, node_ids = tree.forward(pts_reshape, want_node_ids=True)
     corners = tree.corners[node_ids]
-    node_ids_numpy = node_ids.detach().numpy()
+    node_ids_numpy = node_ids.detach().cpu().numpy()
     np.savez("node_ids.npz", p=node_ids_numpy)
-    pts_numpy = pts.detach().numpy()
+    pts_numpy = pts.detach().cpu().numpy()
     np.savez("pts.npz", p=pts_numpy)
 
 
