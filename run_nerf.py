@@ -495,7 +495,8 @@ def render_rays(ray_batch,
         print(z_vals)
         print(z_vals.shape)
 
-    
+    z_vals_numpy = z_vals.detach().cpu().numpy()
+    np.savez("z_vals.npz", p=z_vals_numpy)
     pts = rays_o[...,None,:] + rays_d[...,None,:] * z_vals[...,:,None] # [N_rays, N_samples, 3]
 
 
