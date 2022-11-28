@@ -31,7 +31,7 @@ Rays = namedtuple('Rays', ["origins", "dirs", "viewdirs"])
 
 
 tree_file_path = 'tree_11_27'
-global global_batch_num
+global_batch_num = 0
 
 def set_values_for_tree(pts, alpha, tree):
     batch_size, N_samples, dim = pts.shape[0], pts.shape[1], pts.shape[2]
@@ -544,6 +544,7 @@ def render_rays(ray_batch,
             c ="firebrick",
             linewidth=0.05
         )
+    global global_batch_num
     plt.savefig(f"ray_figures/batch_{global_batch_num}.png")
     global_batch_num += 1
 
