@@ -55,6 +55,7 @@ def set_values_for_tree(pts, alpha, tree):
     print("Set nodes to densities: ", unique_ids, new_max_densities)
 
 def get_features_from_rays(pts, tree):
+    print("Getting features from rays")
     batch_size, N_samples, dim = pts.shape[0], pts.shape[1], pts.shape[2]
     pts_reshape = pts.reshape(batch_size * N_samples, dim)
     forward, node_ids = tree.forward(pts_reshape, want_node_ids=True)
