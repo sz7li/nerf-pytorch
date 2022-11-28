@@ -380,6 +380,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     raw2alpha = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
 
     dists = z_vals[...,1:] - z_vals[...,:-1]
+    # dists = z_vals[...,] - z_vals[...,:-1]
     dists = torch.cat([dists, torch.Tensor([1e10]).expand(dists[...,:1].shape)], -1)  # [N_rays, N_samples]
     
     dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
@@ -530,6 +531,20 @@ def render_rays(ray_batch,
     # invdirs = 1.0 / (rays_d + 1e-9)
     # t, tmax = dda_unit(rays_o, invdirs)
     # print(tmax-t)
+
+    fig = plt.figure(figsize=(12, 8))
+    ax = fig.add_subplot(1,1,1, projection='3d')
+    for i, pt in enumerate(pts):
+    #     print(o[0], (rays_d[i][0] - o[0]) / 100000)
+        line, = ax.plot(
+            [pt[0][0], pt[-1][0]],
+            [pt[0][1], pt[-1][1]],
+            zs = [pt[0][2], pt[-1][2]],
+            c ="firebrick",
+            linewidth=0.05
+        )
+    plt.savefig("ray_figures/test.png")
+
 
     features_at_intersections, corners = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
     # print(features_at_intersections)
