@@ -31,6 +31,7 @@ Rays = namedtuple('Rays', ["origins", "dirs", "viewdirs"])
 
 
 tree_file_path = 'tree_11_27'
+global_batch_num = 0
 
 def set_values_for_tree(pts, alpha, tree):
     batch_size, N_samples, dim = pts.shape[0], pts.shape[1], pts.shape[2]
@@ -543,8 +544,8 @@ def render_rays(ray_batch,
             c ="firebrick",
             linewidth=0.05
         )
-    plt.savefig("ray_figures/test.png")
-
+    plt.savefig(f"ray_figures/batch_{global_batch_num}.png")
+    global_batch_num += 1
 
     features_at_intersections, corners = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
     # print(features_at_intersections)
