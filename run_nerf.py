@@ -562,9 +562,9 @@ def render_rays(ray_batch,
     '''
     
 
-    raise ValueError
+    # raise ValueError
     # 
-    raw = network_query_fn(features_at_intersections, viewdirs, network_fn) # network_fn is model=NeRF(...)
+    # raw = network_query_fn(features_at_intersections, viewdirs, network_fn) # network_fn is model=NeRF(...)
     
     print("RAW out")
     #
