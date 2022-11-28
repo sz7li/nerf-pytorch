@@ -31,7 +31,7 @@ Rays = namedtuple('Rays', ["origins", "dirs", "viewdirs"])
 
 
 tree_file_path = 'tree_11_27'
-global_batch_num = 0
+global global_batch_num
 
 def set_values_for_tree(pts, alpha, tree):
     batch_size, N_samples, dim = pts.shape[0], pts.shape[1], pts.shape[2]
