@@ -30,7 +30,7 @@ DEBUG = False
 Rays = namedtuple('Rays', ["origins", "dirs", "viewdirs"])
 
 
-tree_file_path = 'tree_11_19_2'
+tree_file_path = 'tree_11_27'
 
 def set_values_for_tree(pts, alpha, tree):
     batch_size, N_samples, dim = pts.shape[0], pts.shape[1], pts.shape[2]
@@ -60,6 +60,12 @@ def get_features_from_rays(pts, tree):
     pts_reshape = pts.reshape(batch_size * N_samples, dim)
     forward, node_ids = tree.forward(pts_reshape, want_node_ids=True)
     corners = tree.corners[node_ids]
+    node_ids_numpy = node_ids.detach().numpy()
+    np.savez("node_ids.npz", p=node_ids_numpy)
+    pts_numpy = pts.detach().numpy()
+    np.savez("pts.npz", p=pts_numpy)
+
+
     print(node_ids)
     print(corners.shape)
     corners = corners.reshape(batch_size, N_samples, 3)
@@ -861,6 +867,7 @@ def train():
     tree.uniform_()
     print("Tree created with size using center and radius ", len(tree.values), center, radius)
     print(tree.values[0])
+    tree.save(f"{tree_file_path}/test_tree", shrink=True, compress=True)
     # tree = tree.load("tree_iter_9725.npz")
     
     # Create nerf model
