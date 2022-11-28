@@ -528,7 +528,7 @@ def render_rays(ray_batch,
     # new_pts = get_features_from_rays(pts)
     raw = network_query_fn(features_at_intersections,viewdirs, network_fn)
     print(corners[500])
-    print(pts[500])
+    print(pts.shape)
     '''
     network_query_fn = lambda inputs, viewdirs, network_fn : run_network(inputs, viewdirs, network_fn,
                                                                 embed_fn=embed_fn,
