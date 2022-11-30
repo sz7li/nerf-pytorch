@@ -578,7 +578,7 @@ def render_rays(ray_batch,
 
     node_features, node_ids = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
     print(node_features.shape)
-    print(tree.features)
+    print(tree[node_ids])
     raise ValueError
     # print(features_at_intersections)
     # new_pts = get_features_from_rays(pts)
