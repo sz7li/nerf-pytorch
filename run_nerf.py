@@ -418,7 +418,6 @@ def raw2outputs(raw, densities, z_vals, node_ids, rays_d, raw_noise_std=0, white
     print("RGB values: ", rgb.shape)
     print("RAW DENSITIES ", raw_densities.shape)
     print(raw_densities[0])
-    raise ValueError
     # return rgb, raw_densities
     
     noise = 0.
