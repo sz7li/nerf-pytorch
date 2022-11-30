@@ -73,11 +73,14 @@ def get_embedder(multires, input_dims, i=0):
     return embed, embedder_obj.out_dim
 
 class Voxel_NN(nn.Module):
+    # def __init__(self):
+    #     self.pts_linears = nn.ModuleList(
+    #         [nn.Linear(input_ch, W)] + [nn.Linear(W, W) if i not in self.skips else nn.Linear(W + input_ch, W) for i in range(D-1)])
     pass
 
 # Model
 class NeRF(nn.Module):
-    def __init__(self, D=8, W=256, input_ch=3, input_ch_views=3, output_ch=4, skips=[4], use_viewdirs=False):
+    def __init__(self, D=4, W=256, input_ch=3, input_ch_views=3, output_ch=4, skips=[], use_viewdirs=False):
         """ 
         """
         super(NeRF, self).__init__()

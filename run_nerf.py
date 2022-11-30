@@ -283,6 +283,7 @@ def create_nerf(args, tree): # add tree
     
     tree.to('cuda')
     print("Created model with ", [i.shape for i in (model.parameters())])
+    raise ValueError
 
     # todo add tree parameters
     grad_vars = list(model.parameters()) + list(tree.parameters())
