@@ -382,7 +382,6 @@ def raw2outputs(raw, z_vals, node_ids, rays_d, raw_noise_std=0, white_bkgd=False
     raw2alpha = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
 
     node_id_diffs = torch.diff(node_ids)
-    print(node_id_diffs.shape)
     nonzeros = torch.nonzero(node_id_diffs)
     one_hot_indices = torch.nn.functional.one_hot(nonzeros[:, 1] + 1, num_classes=128)
     one_hot_accumulated = torch.zeros_like(node_ids, dtype=torch.int64)
@@ -401,17 +400,9 @@ def raw2outputs(raw, z_vals, node_ids, rays_d, raw_noise_std=0, white_bkgd=False
     final = F.relu(flattened_dists).repeat_interleave(nonzeros_with_trail_diff, dim=0).reshape(1024, 128)
     dists = torch.mul(one_hot_accumulated, final)
 
-    print(dists.shape)
-    print((z_vals[...,1:] - z_vals[...,:-1]).shape)
-
-    raise ValueError
-
-
+    # dists = z_vals[...,1:] - z_vals[...,:-1]
     
-
-    dists = z_vals[...,1:] - z_vals[...,:-1]
-    
-    dists = torch.cat([dists, torch.Tensor([1e10]).expand(dists[...,:1].shape)], -1)  # [N_rays, N_samples]
+    # dists = torch.cat([dists, torch.Tensor([1e10]).expand(dists[...,:1].shape)], -1)  # [N_rays, N_samples]
     
     dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
 
@@ -433,6 +424,8 @@ def raw2outputs(raw, z_vals, node_ids, rays_d, raw_noise_std=0, white_bkgd=False
             noise = torch.Tensor(noise)
     
     alpha = raw2alpha(raw[...,3] + noise, dists)  # [N_rays, N_samples]
+    print(alpha[0])
+    raise ValueError
 
     # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
     weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1)), 1.-alpha + 1e-10], -1), -1)[:, :-1]
