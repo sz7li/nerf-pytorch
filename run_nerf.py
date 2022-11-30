@@ -61,10 +61,10 @@ def get_features_from_rays(pts, tree):
     pts_reshape = pts.reshape(batch_size * N_samples, dim)
     forward, node_ids = tree.forward(pts_reshape, want_node_ids=True)
     corners = tree.corners[node_ids]
-    node_ids_numpy = node_ids.detach().cpu().numpy()
-    np.savez("node_ids.npz", p=node_ids_numpy)
-    pts_numpy = pts.detach().cpu().numpy()
-    np.savez("pts.npz", p=pts_numpy)
+    # node_ids_numpy = node_ids.detach().cpu().numpy()
+    # np.savez("node_ids.npz", p=node_ids_numpy)
+    # pts_numpy = pts.detach().cpu().numpy()
+    # np.savez("pts.npz", p=pts_numpy)
 
 
     print(node_ids)
@@ -578,7 +578,7 @@ def render_rays(ray_batch,
 
     node_features, node_ids = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
     print(node_features.shape)
-    print(tree[node_ids])
+    print(node_features[:, 0])
     raise ValueError
     # print(features_at_intersections)
     # new_pts = get_features_from_rays(pts)
