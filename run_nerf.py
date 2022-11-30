@@ -74,7 +74,7 @@ def get_features_from_rays(pts, tree):
 
     print("Returning tree forward and corner with shape", forward.shape, corners.shape)
 
-    return forward
+    return forward, node_ids
 
 def batchify(fn, chunk):
     """Constructs a version of 'fn' that applies to smaller batches.
@@ -365,7 +365,7 @@ def create_nerf(args, tree): # add tree
     return render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer
 
 
-def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=False):
+def raw2outputs(raw, z_vals, node_ids, rays_d, raw_noise_std=0, white_bkgd=False, pytest=False):
     """Transforms model's predictions to semantically meaningful values.
     Args:
         raw: [num_rays, num_samples along ray, 4]. Prediction from model.
@@ -380,8 +380,35 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     """
     raw2alpha = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
 
+    node_id_diffs = torch.diff(node_ids)
+    nonzeros = torch.nonzero(node_id_diffs)
+    one_hot_indices = torch.nn.functional.one_hot(nonzeros[:, 1] + 1, num_classes=128)
+    one_hot_accumulated = torch.zeros_like(node_ids, dtype=torch.int64)
+    index = nonzeros[:, 0]
+    one_hot_accumulated.index_add_(0, index, one_hot_indices)
+    one_hot_accumulated[:, 0] += 1
+    one_hot_accumulated[:, -1] += 1
+
+    nonzeros_with_trail = torch.nonzero(torch.cat([torch.ones(node_ids.shape[0], 1),  node_id_diffs, torch.ones(node_ids.shape[0], 1)], dim=-1))    
+    nonzeros_with_trail_diff = F.relu(torch.diff(nonzeros_with_trail[:, 1]))
+
+    zvals_expanded = torch.cat([z_vals, torch.Tensor([0.]).expand(z_vals[...,:1].shape), torch.Tensor([0]).expand(z_vals[...,:1].shape)], dim=1)
+    flattened_selected_zvals = torch.flatten(zvals_expanded)[nonzeros_with_trail[:, 0] * 130 + nonzeros_with_trail[:, 1]]
+    flattened_dists = F.relu(torch.diff(flattened_selected_zvals))
+
+    final = F.relu(flattened_dists).repeat_interleave(nonzeros_with_trail_diff, dim=0).reshape(1024, 128)
+    dists = torch.mul(one_hot_accumulated, final)
+
+    print(dists.shape)
+    print((z_vals[...,1:] - z_vals[...,:-1]).shape)
+
+    raise ValueError
+
+
+    
+
     dists = z_vals[...,1:] - z_vals[...,:-1]
-    # dists = z_vals[...,] - z_vals[...,:-1]
+    
     dists = torch.cat([dists, torch.Tensor([1e10]).expand(dists[...,:1].shape)], -1)  # [N_rays, N_samples]
     
     dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
@@ -533,29 +560,29 @@ def render_rays(ray_batch,
     # t, tmax = dda_unit(rays_o, invdirs)
     # print(tmax-t)
 
-    fig = plt.figure(figsize=(12, 8))
-    ax = fig.add_subplot(1,1,1, projection='3d')
-    for i, pt in enumerate(pts.cpu().numpy()):
-    #     print(o[0], (rays_d[i][0] - o[0]) / 100000)
-        line, = ax.plot(
-            [pt[0][0], pt[-1][0]],
-            [pt[0][1], pt[-1][1]],
-            zs = [pt[0][2], pt[-1][2]],
-            c ="firebrick",
-            linewidth=0.05
-        )
-    global global_batch_num
-    plt.savefig(f"ray_figures/batch_{global_batch_num}.png")
-    global_batch_num += 1
+    # fig = plt.figure(figsize=(12, 8))
+    # ax = fig.add_subplot(1,1,1, projection='3d')
+    # for i, pt in enumerate(pts.cpu().numpy()):
+    # #     print(o[0], (rays_d[i][0] - o[0]) / 100000)
+    #     line, = ax.plot(
+    #         [pt[0][0], pt[-1][0]],
+    #         [pt[0][1], pt[-1][1]],
+    #         zs = [pt[0][2], pt[-1][2]],
+    #         c ="firebrick",
+    #         linewidth=0.05
+    #     )
+    # global global_batch_num
+    # plt.savefig(f"ray_figures/batch_{global_batch_num}.png")
+    # global_batch_num += 1
 
-    features_at_intersections = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
-    print(features_at_intersections.shape)
+    node_features, node_ids = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
+    print(node_features.shape)
     # print(features_at_intersections)
     # new_pts = get_features_from_rays(pts)
-    raw = network_query_fn(features_at_intersections,viewdirs, network_fn)
+    raw = network_query_fn(node_features,viewdirs, network_fn)
     # print(corners[500])
     print(pts.shape)
-    raise ValueError
+    
     '''
     network_query_fn = lambda inputs, viewdirs, network_fn : run_network(inputs, viewdirs, network_fn,
                                                                 embed_fn=embed_fn,
@@ -592,7 +619,10 @@ def render_rays(ray_batch,
     print("Raw output shape:", raw.shape) #[1024, 64, 4]
     print("N IMPORTANCE IS ", N_importance)
 
-    rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, raw_rgb, raw_alpha = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+
+    rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, raw_rgb, raw_alpha = raw2outputs(raw, z_vals, node_ids, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+    raise ValueError
+
     # rgb_map [num_rays, 3]
     # raw2outputs accumulates and sums the pts passed in 
     # tree.set(pts, raw[rgb], raw[densities])
