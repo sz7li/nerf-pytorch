@@ -30,7 +30,7 @@ DEBUG = False
 Rays = namedtuple('Rays', ["origins", "dirs", "viewdirs"])
 
 
-tree_file_path = 'tree_11_27'
+tree_file_path = 'tree_11_30'
 global_batch_num = 0
 
 def set_values_for_tree(pts, alpha, tree):
@@ -918,11 +918,11 @@ def train():
     radius = np.sqrt(np.sum((bbox[0] - bbox[1]) ** 2) / 2) / 2
     # Create tree model
     tree = create_tree(center, radius)
-    for i in range(1):
+    for i in range(2):
         tree.refine()
     tree.uniform_()
     print("Tree created with size using center and radius ", len(tree.values), center, radius)
-    print(tree.values[0])
+    # print(tree.values[0])
     tree.save(f"{tree_file_path}/test_tree", shrink=True, compress=True)
     # tree = tree.load("tree_iter_9725.npz")
     
@@ -1014,25 +1014,27 @@ def train():
     for i in trange(start, N_iters):
         time0 = time.time()
 
-        if i % 10000 == 0:
+        if i % 100 == 0:
 
             print(f"Saving tree at iteration {i}")
-            rays_o, rays_d = get_rays(H, W, K, torch.Tensor(temp_pose[:3,:4]))
-            rays_d = rays_d[200][200][None, ]
-            print("Test ray values rays_d", rays_d.shape, rays_d[0])
+            # rays_o, rays_d = get_rays(H, W, K, torch.Tensor(temp_pose[:3,:4]))
+            # rays_d = rays_d[200][200][None, ]
+            # print("Test ray values rays_d", rays_d.shape, rays_d[0])
             
-            network_query_fn = render_kwargs_train['network_query_fn']
-            raw = network_query_fn(tree.values[None,], rays_d, render_kwargs_train['network_fine']) # network_fn is model=NeRF(...)
+            # network_query_fn = render_kwargs_train['network_query_fn']
+            # raw = network_query_fn(tree.values[None,], rays_d, render_kwargs_train['network_fine']) # network_fn is model=NeRF(...)
             # we want raw to be [tree_size, 4], tree.values SHOULD be in the same order as tree._all_leaves
-            print("Network successfully queried with raw shape ", raw.shape, raw[0][:, 3][:50])
+            # print("Network successfully queried with raw shape ", raw.shape, raw[0][:, 3][:50])
 
-            raw_densities = F.relu(raw[...,3])[0]
+            # raw_densities = F.relu(raw[...,3])[0]
             # alpha = raw2alpha(raw[...,3] + 0., dists)  # [N_rays, N_samples]
 
             approx_delta = 2.0 / (2 ** 9)
             alpha_thresh = 0.01
 
             sigma_thresh = -np.log(1.0 - alpha_thresh) / approx_delta
+
+            raw_densities = tree.values[:, 0]
             # sigma_thresh = 1.
             print("Top 50 raw densities (with F.relu applied) from tree values: ")
             print(raw_densities.shape)
@@ -1062,9 +1064,9 @@ def train():
                         print(p.shape)
 
             model_c = render_kwargs_train['network_fn']
-            model_f = render_kwargs_train['network_fine']
+            # model_f = render_kwargs_train['network_fine']
 
-            grad_vars = it.chain(model_c.parameters(), tree.parameters(), model_f.parameters())
+            grad_vars = it.chain(model_c.parameters(), tree.parameters())
             lr = optimizer.param_groups[0]['lr']
             optimizer = torch.optim.Adam(params=grad_vars, lr=lr, betas=(0.9, 0.999))
 
@@ -1197,7 +1199,7 @@ def train():
             # Turn on testing mode
             with torch.no_grad():
                 # // HARDCODE args.chunk is originally 1024 * 32 but hardcode to 512 * 32 here
-                test_chunk_size = 256 * 32
+                test_chunk_size = 1024 * 32
                 rgbs, disps = render_path(render_poses, hwf, K, test_chunk_size, render_kwargs_test)
             print('Done, saving', rgbs.shape, disps.shape)
             moviebase = os.path.join(basedir, expname, '{}_spiral_{:06d}_'.format(expname, i))
