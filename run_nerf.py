@@ -107,8 +107,6 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
         # embedded = torch.cat([embedded, embedded_dirs], -1)
         inputs_flat = torch.cat([inputs_flat, input_dirs_flat], -1)
     # outputs_flat = batchify(fn, netchunk)(embedded)
-    print("Inputs shape ", inputs_flat.shape)
-    raise ValueError
     outputs_flat = batchify(fn, netchunk)(inputs_flat)
     outputs = torch.reshape(outputs_flat, list(inputs.shape[:-1]) + [outputs_flat.shape[-1]])
     print("run_network function output shape ", outputs.shape)
