@@ -388,7 +388,7 @@ def raw2outputs(raw, densities, z_vals, node_ids, rays_d, raw_noise_std=0, white
 
     node_id_diffs = torch.diff(node_ids)
     nonzeros = torch.nonzero(node_id_diffs)
-    one_hot_indices = torch.nn.functional.one_hot(nonzeros[:, 1] + 1, num_classes=128)
+    one_hot_indices = torch.nn.functional.one_hot(nonzeros[:, 1] + 1, num_classes=z_vals.shape[1])
     one_hot_accumulated = torch.zeros_like(node_ids, dtype=torch.int64)
     index = nonzeros[:, 0]
     one_hot_accumulated.index_add_(0, index, one_hot_indices)
@@ -399,10 +399,10 @@ def raw2outputs(raw, densities, z_vals, node_ids, rays_d, raw_noise_std=0, white
     nonzeros_with_trail_diff = F.relu(torch.diff(nonzeros_with_trail[:, 1]))
 
     zvals_expanded = torch.cat([z_vals, torch.Tensor([0.]).expand(z_vals[...,:1].shape), torch.Tensor([0]).expand(z_vals[...,:1].shape)], dim=1)
-    flattened_selected_zvals = torch.flatten(zvals_expanded)[nonzeros_with_trail[:, 0] * 130 + nonzeros_with_trail[:, 1]]
+    flattened_selected_zvals = torch.flatten(zvals_expanded)[nonzeros_with_trail[:, 0] * z_vals.shape[1] + 2 + nonzeros_with_trail[:, 1]]
     flattened_dists = F.relu(torch.diff(flattened_selected_zvals))
 
-    final = F.relu(flattened_dists).repeat_interleave(nonzeros_with_trail_diff, dim=0).reshape(1024, 128)
+    final = F.relu(flattened_dists).repeat_interleave(nonzeros_with_trail_diff, dim=0).reshape(z_vals.shape)
     dists = torch.mul(one_hot_accumulated, final)
 
     # dists = z_vals[...,1:] - z_vals[...,:-1]
@@ -1196,7 +1196,7 @@ def train():
         if i%args.i_video==0 and i > 0:
             # Turn on testing mode
             with torch.no_grad():
-                # args.chunk is originally 1024 * 32 but hardcode to 512 * 32 here
+                # // HARDCODE args.chunk is originally 1024 * 32 but hardcode to 512 * 32 here
                 test_chunk_size = 256 * 32
                 rgbs, disps = render_path(render_poses, hwf, K, test_chunk_size, render_kwargs_test)
             print('Done, saving', rgbs.shape, disps.shape)
