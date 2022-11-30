@@ -279,9 +279,6 @@ def create_nerf(args, tree): # add tree
     if args.use_viewdirs:
         input_ch_views = 3 #// HARDCODE
         # embeddirs_fn, input_ch_views = get_embedder(args.multires_views, 3, args.i_embed)
-    print(input_ch, input_ch_views)
-    print(args.netdepth, args.netwidth)
-    raise ValueError
     output_ch = 5 if args.N_importance > 0 else 4
     skips = []
     model = NeRF(D=args.netdepth, W=args.netwidth,
