@@ -30,7 +30,7 @@ DEBUG = False
 Rays = namedtuple('Rays', ["origins", "dirs", "viewdirs"])
 
 
-tree_file_path = 'tree_11_30'
+tree_file_path = 'tree_11_30_1'
 global_batch_num = 0
 
 def set_values_for_tree(pts, alpha, tree):
@@ -1218,7 +1218,7 @@ def train():
             os.makedirs(testsavedir, exist_ok=True)
             print('test poses shape', poses[i_test].shape)
             with torch.no_grad():
-                test_chunk_size = 256 * 32
+                test_chunk_size = 1024 * 32
                 render_path(torch.Tensor(poses[i_test]).to(device), hwf, K, test_chunk_size, render_kwargs_test, gt_imgs=images[i_test], savedir=testsavedir)
             print('Saved test set')
 
@@ -1271,7 +1271,6 @@ def train():
         global_step += 1
 
         print("---------------Step finished---------------", global_step)
-        print(tree.values[0])
 
 
 if __name__=='__main__':
