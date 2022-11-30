@@ -60,7 +60,7 @@ def get_features_from_rays(pts, tree):
     batch_size, N_samples, dim = pts.shape[0], pts.shape[1], pts.shape[2]
     pts_reshape = pts.reshape(batch_size * N_samples, dim)
     forward, node_ids = tree.forward(pts_reshape, want_node_ids=True)
-    corners = tree.corners[node_ids]
+    # corners = tree.corners[node_ids]
     # node_ids_numpy = node_ids.detach().cpu().numpy()
     # np.savez("node_ids.npz", p=node_ids_numpy)
     # pts_numpy = pts.detach().cpu().numpy()
@@ -68,12 +68,12 @@ def get_features_from_rays(pts, tree):
 
 
     print(node_ids)
-    print(corners.shape)
+    # print(corners.shape)
     # corners = corners.reshape(batch_size, N_samples, 3)
     node_ids = node_ids.reshape(batch_size, N_samples)
     forward = forward.reshape(batch_size, N_samples, tree.data_dim)
 
-    print("Returning tree forward and corner with shape", forward.shape, corners.shape)
+    print("Returning tree forward with shape", forward.shape)
 
     return forward, node_ids
 
