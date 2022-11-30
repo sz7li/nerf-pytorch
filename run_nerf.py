@@ -103,9 +103,11 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
         input_dirs = viewdirs[:,None].expand(inputs.shape[0], inputs.shape[1], 3) 
         # .expand(1024, 192, 3)
         input_dirs_flat = torch.reshape(input_dirs, [-1, input_dirs.shape[-1]])
-        embedded_dirs = embeddirs_fn(input_dirs_flat)
-        embedded = torch.cat([embedded, embedded_dirs], -1)
-    outputs_flat = batchify(fn, netchunk)(embedded)
+        # embedded_dirs = embeddirs_fn(input_dirs_flat)
+        # embedded = torch.cat([embedded, embedded_dirs], -1)
+    print(embedded.shape, inputs_flat.shape)
+    raise ValueError
+    # outputs_flat = batchify(fn, netchunk)(embedded)
     outputs = torch.reshape(outputs_flat, list(inputs.shape[:-1]) + [outputs_flat.shape[-1]])
     print("run_network function output shape ", outputs.shape)
     return outputs
@@ -283,14 +285,15 @@ def create_nerf(args, tree): # add tree
     
     tree.to('cuda')
     print("Created model with ", [i.shape for i in (model.parameters())])
-    raise ValueError
+    print(model.parameters())
 
     # todo add tree parameters
     grad_vars = list(model.parameters()) + list(tree.parameters())
     # grad_vars = list([model.parameters() + tree.parameters()])
 
     model_fine = None
-    if args.N_importance > 0:
+    if False:
+    # if args.N_importance > 0:
         model_fine = NeRF(D=args.netdepth_fine, W=args.netwidth_fine,
                           input_ch=input_ch, output_ch=output_ch, skips=skips,
                           input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device)
