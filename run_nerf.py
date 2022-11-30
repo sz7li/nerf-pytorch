@@ -278,8 +278,10 @@ def create_nerf(args, tree): # add tree
     embeddirs_fn = None
     if args.use_viewdirs:
         embeddirs_fn, input_ch_views = get_embedder(args.multires_views, 3, args.i_embed)
+    print(args.netdepth, args.netwidth)
+    raise ValueError
     output_ch = 5 if args.N_importance > 0 else 4
-    skips = [4]
+    skips = []
     model = NeRF(D=args.netdepth, W=args.netwidth,
                  input_ch=input_ch, output_ch=output_ch, skips=skips,
                  input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device)
@@ -683,9 +685,9 @@ def config_parser():
                         help='input data directory')
 
     # training options
-    parser.add_argument("--netdepth", type=int, default=8, 
+    parser.add_argument("--netdepth", type=int, default=4, 
                         help='layers in network')
-    parser.add_argument("--netwidth", type=int, default=128, 
+    parser.add_argument("--netwidth", type=int, default=256, 
                         help='channels per layer')
     parser.add_argument("--netdepth_fine", type=int, default=8, 
                         help='layers in fine network')
