@@ -110,7 +110,6 @@ def run_network(inputs, viewdirs, fn, embed_fn=None, embeddirs_fn=None, netchunk
     outputs_flat = batchify(fn, netchunk)(inputs_flat)
     outputs = torch.reshape(outputs_flat, list(inputs.shape[:-1]) + [outputs_flat.shape[-1]])
     print("run_network function output shape ", outputs.shape)
-    raise ValueError
     return outputs
 
 
@@ -579,9 +578,11 @@ def render_rays(ray_batch,
 
     node_features, node_ids = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
     print(node_features.shape)
+    print(tree[node_ids].features)
+    raise ValueError
     # print(features_at_intersections)
     # new_pts = get_features_from_rays(pts)
-    raw = network_query_fn(node_features,viewdirs, network_fn)
+    raw = network_query_fn(node_features, viewdirs, network_fn)
     # print(corners[500])
     print(pts.shape)
     
@@ -617,11 +618,11 @@ def render_rays(ray_batch,
     # 
 
 
-    print("Raw output shape:", raw.shape) #[1024, 64, 4]
+    print("Raw output shape:", raw.shape) #[1024, 64, 4] => [1024, 64, 3]
     print("N IMPORTANCE IS ", N_importance)
 
 
-    rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, raw_rgb, raw_alpha = raw2outputs(raw, z_vals, node_ids, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+    rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, raw_rgb, raw_alpha = raw2outputs(raw, tree, z_vals, node_ids, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
     # raise ValueError
 
     # rgb_map [num_rays, 3]
