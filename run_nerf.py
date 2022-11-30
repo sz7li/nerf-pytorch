@@ -445,7 +445,7 @@ def raw2outputs(raw, densities, z_vals, node_ids, rays_d, raw_noise_std=0, white
     print("Depth map", depth_map)
     print("Disp map", disp_map)
 
-    return rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, rgb, alpha
+    return rgb_map, disp_map, acc_map, weights, depth_map, densities, rgb, alpha
 
 
 def render_rays(ray_batch,
