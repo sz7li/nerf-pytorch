@@ -436,8 +436,8 @@ def raw2outputs(raw, z_vals, node_ids, rays_d, raw_noise_std=0, white_bkgd=False
     if white_bkgd:
         rgb_map = rgb_map + (1.-acc_map[...,None])
 
-    print(depth_map[0])
-    print(disp_map[0])
+    print(depth_map)
+    print(disp_map)
     raise ValueError
 
     return rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, rgb, alpha
