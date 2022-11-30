@@ -88,7 +88,7 @@ def batchify(fn, chunk):
     return ret
 
 
-def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
+def run_network(inputs, viewdirs, fn, embed_fn=None, embeddirs_fn=None, netchunk=1024*64):
     """Prepares inputs and applies network 'fn'.
     """
 
@@ -96,7 +96,7 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
     # for refining input shape is [1, 512, 16], viewdirs is [400, 400, 3] => [1, 3]
     inputs_flat = torch.reshape(inputs, [-1, inputs.shape[-1]])
     print("inputs flat shape ", inputs_flat.shape)
-    embedded = embed_fn(inputs_flat)
+    # embedded = embed_fn(inputs_flat)
 
     if viewdirs is not None:
         # input_dirs = viewdirs[:,None].expand(inputs.shape)
@@ -303,8 +303,8 @@ def create_nerf(args, tree): # add tree
         print("Created fine NERF model", [i.shape for i in (model_fine.parameters())])
 
     network_query_fn = lambda inputs, viewdirs, network_fn : run_network(inputs, viewdirs, network_fn,
-                                                                embed_fn=embed_fn,
-                                                                embeddirs_fn=embeddirs_fn,
+                                                                embed_fn=None,
+                                                                embeddirs_fn=None,
                                                                 netchunk=args.netchunk)
 
     # Create optimizer
