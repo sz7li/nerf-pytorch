@@ -555,6 +555,7 @@ def render_rays(ray_batch,
     raw = network_query_fn(features_at_intersections,viewdirs, network_fn)
     # print(corners[500])
     print(pts.shape)
+    raise ValueError
     '''
     network_query_fn = lambda inputs, viewdirs, network_fn : run_network(inputs, viewdirs, network_fn,
                                                                 embed_fn=embed_fn,
