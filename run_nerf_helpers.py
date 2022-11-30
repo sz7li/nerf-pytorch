@@ -80,7 +80,7 @@ class Voxel_NN(nn.Module):
 
 # Model
 class NeRF(nn.Module):
-    def __init__(self, D=4, W=256, input_ch=3, input_ch_views=3, output_ch=4, skips=[], use_viewdirs=False):
+    def __init__(self, D=4, W=256, input_ch=3, input_ch_views=3, output_ch=3, skips=[], use_viewdirs=False):
         """ 
         """
         super(NeRF, self).__init__()
@@ -119,7 +119,7 @@ class NeRF(nn.Module):
                 h = torch.cat([input_pts, h], -1)
 
         if self.use_viewdirs:
-            alpha = self.alpha_linear(h)
+            # alpha = self.alpha_linear(h)
             feature = self.feature_linear(h)
             h = torch.cat([feature, input_views], -1)
         
@@ -128,7 +128,8 @@ class NeRF(nn.Module):
                 h = F.relu(h)
 
             rgb = self.rgb_linear(h)
-            outputs = torch.cat([rgb, alpha], -1)
+            # outputs = torch.cat([rgb, alpha], -1)
+            outputs = rgb
         else:
             outputs = self.output_linear(h)
 
