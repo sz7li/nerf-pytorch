@@ -429,8 +429,6 @@ def raw2outputs(raw, z_vals, node_ids, rays_d, raw_noise_std=0, white_bkgd=False
     weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1)), 1.-alpha + 1e-10], -1), -1)[:, :-1]
     rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
 
-    print(weights[0])
-
     depth_map = torch.sum(weights * z_vals, -1)
     disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
     acc_map = torch.sum(weights, -1)
@@ -438,6 +436,8 @@ def raw2outputs(raw, z_vals, node_ids, rays_d, raw_noise_std=0, white_bkgd=False
     if white_bkgd:
         rgb_map = rgb_map + (1.-acc_map[...,None])
 
+    print(depth_map[0])
+    print(disp_map[0])
     raise ValueError
 
     return rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, rgb, alpha
