@@ -436,9 +436,8 @@ def raw2outputs(raw, z_vals, node_ids, rays_d, raw_noise_std=0, white_bkgd=False
     if white_bkgd:
         rgb_map = rgb_map + (1.-acc_map[...,None])
 
-    print(depth_map)
-    print(disp_map)
-    raise ValueError
+    print("Depth map", depth_map)
+    print("Disp map", disp_map)
 
     return rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, rgb, alpha
 
@@ -612,20 +611,20 @@ def render_rays(ray_batch,
     # 
 
 
-
     print("Raw output shape:", raw.shape) #[1024, 64, 4]
     print("N IMPORTANCE IS ", N_importance)
 
 
     rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, raw_rgb, raw_alpha = raw2outputs(raw, z_vals, node_ids, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
-    raise ValueError
+    # raise ValueError
 
     # rgb_map [num_rays, 3]
     # raw2outputs accumulates and sums the pts passed in 
     # tree.set(pts, raw[rgb], raw[densities])
     # if refine then take the raw output and map to voxels
     
-    if N_importance > 0:
+    # if N_importance > 0:
+    if False:
 
         rgb_map_0, disp_map_0, acc_map_0 = rgb_map, disp_map, acc_map
 
@@ -650,7 +649,9 @@ def render_rays(ray_batch,
     ret = {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
     if retraw:
         ret['raw'] = raw
-    if N_importance > 0:
+
+    if False:
+    # if N_importance > 0:
         ret['rgb0'] = rgb_map_0
         ret['disp0'] = disp_map_0
         ret['acc0'] = acc_map_0
