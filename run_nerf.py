@@ -278,6 +278,7 @@ def create_nerf(args, tree): # add tree
     embeddirs_fn = None
     if args.use_viewdirs:
         embeddirs_fn, input_ch_views = get_embedder(args.multires_views, 3, args.i_embed)
+    print(input_ch, input_ch_views)
     print(args.netdepth, args.netwidth)
     raise ValueError
     output_ch = 5 if args.N_importance > 0 else 4
