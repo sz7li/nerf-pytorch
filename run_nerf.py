@@ -425,7 +425,7 @@ def raw2outputs(raw, z_vals, node_ids, rays_d, raw_noise_std=0, white_bkgd=False
     
     alpha = raw2alpha(raw[...,3] + noise, dists)  # [N_rays, N_samples]
     print(dists[0])
-    print(raw[0])
+    print(raw[...,3][0])
     print(alpha[0])
     raise ValueError
 
