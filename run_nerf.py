@@ -1028,7 +1028,7 @@ def train():
             # raw_densities = F.relu(raw[...,3])[0]
             # alpha = raw2alpha(raw[...,3] + 0., dists)  # [N_rays, N_samples]
 
-            approx_delta = 2.0 / (2 ** 9)
+            approx_delta = 2.0 / len(tree.values)
             alpha_thresh = 0.01
 
             sigma_thresh = -np.log(1.0 - alpha_thresh) / approx_delta
