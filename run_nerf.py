@@ -30,7 +30,7 @@ DEBUG = False
 Rays = namedtuple('Rays', ["origins", "dirs", "viewdirs"])
 
 
-tree_file_path = 'tree_11_30_1'
+tree_file_path = 'tree_11_30_2'
 global_batch_num = 0
 
 def set_values_for_tree(pts, alpha, tree):
@@ -412,25 +412,24 @@ def raw2outputs(raw, densities, z_vals, node_ids, rays_d, raw_noise_std=0, white
     dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
 
     rgb = torch.sigmoid(raw[...,:3])  # [N_rays, N_samples, 3]
-    raw_densities = F.relu(densities)
 
 
     print("RGB values: ", rgb.shape)
-    print("RAW DENSITIES ", raw_densities.shape)
-    print(raw_densities[0])
+    print("RAW DENSITIES ", densities.shape)
+    print(densities[0])
     # return rgb, raw_densities
     
     noise = 0.
     if raw_noise_std > 0.:
-        noise = torch.randn(raw_densities.shape) * raw_noise_std
+        noise = torch.randn(densities.shape) * raw_noise_std
 
         # Overwrite randomly sampled data if pytest
         if pytest:
             np.random.seed(0)
-            noise = np.random.rand(*list(raw_densities.shape)) * raw_noise_std
+            noise = np.random.rand(*list(densities.shape)) * raw_noise_std
             noise = torch.Tensor(noise)
     
-    alpha = raw2alpha(raw_densities + noise, dists)  # [N_rays, N_samples]
+    alpha = raw2alpha(densities + noise, dists)  # [N_rays, N_samples]
 
     # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
     weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1)), 1.-alpha + 1e-10], -1), -1)[:, :-1]
@@ -779,7 +778,7 @@ def config_parser():
                         help='frequency of weight ckpt saving')
     parser.add_argument("--i_testset", type=int, default=10000, 
                         help='frequency of testset saving')
-    parser.add_argument("--i_video",   type=int, default=500, 
+    parser.add_argument("--i_video",   type=int, default=2500, 
                         help='frequency of render_poses video saving')
 
     return parser
@@ -1014,7 +1013,7 @@ def train():
     for i in trange(start, N_iters):
         time0 = time.time()
 
-        if i % 100 == 0:
+        if i % 10000 == 0:
 
             print(f"Saving tree at iteration {i}")
             # rays_o, rays_d = get_rays(H, W, K, torch.Tensor(temp_pose[:3,:4]))
