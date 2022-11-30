@@ -110,6 +110,8 @@ class NeRF(nn.Module):
 
     def forward(self, x):
         print("FORWARD with shapes ", x.shape) # 65536, 90 -> 1024 * 64
+        print(self.input_ch, self.input_ch_views)
+        raise ValueError
         input_pts, input_views = torch.split(x, [self.input_ch, self.input_ch_views], dim=-1)
         h = input_pts
         for i, l in enumerate(self.pts_linears):
