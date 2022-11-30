@@ -272,7 +272,7 @@ def create_nerf(args, tree): # add tree
     """Instantiate NeRF's MLP model.
     """
     # embed_fn, input_ch = get_embedder(args.multires, 16, args.i_embed)
-    input_ch = 16 #// HARDCODE to feature size
+    input_ch = 15 #// HARDCODE to feature size
     input_ch_views = 0
     embeddirs_fn = None
     if args.use_viewdirs:
@@ -371,7 +371,7 @@ def create_nerf(args, tree): # add tree
     return render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer
 
 
-def raw2outputs(raw, z_vals, node_ids, rays_d, raw_noise_std=0, white_bkgd=False, pytest=False):
+def raw2outputs(raw, densities, z_vals, node_ids, rays_d, raw_noise_std=0, white_bkgd=False, pytest=False):
     """Transforms model's predictions to semantically meaningful values.
     Args:
         raw: [num_rays, num_samples along ray, 4]. Prediction from model.
@@ -412,7 +412,8 @@ def raw2outputs(raw, z_vals, node_ids, rays_d, raw_noise_std=0, white_bkgd=False
     dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
 
     rgb = torch.sigmoid(raw[...,:3])  # [N_rays, N_samples, 3]
-    raw_densities = F.relu(raw[...,3])
+    raw_densities = F.relu(densities)
+
 
     print("RGB values: ", rgb.shape)
     print("RAW DENSITIES ", raw_densities.shape)
@@ -420,15 +421,15 @@ def raw2outputs(raw, z_vals, node_ids, rays_d, raw_noise_std=0, white_bkgd=False
     
     noise = 0.
     if raw_noise_std > 0.:
-        noise = torch.randn(raw[...,3].shape) * raw_noise_std
+        noise = torch.randn(raw_densities.shape) * raw_noise_std
 
         # Overwrite randomly sampled data if pytest
         if pytest:
             np.random.seed(0)
-            noise = np.random.rand(*list(raw[...,3].shape)) * raw_noise_std
+            noise = np.random.rand(*list(raw_densities.shape)) * raw_noise_std
             noise = torch.Tensor(noise)
     
-    alpha = raw2alpha(raw[...,3] + noise, dists)  # [N_rays, N_samples]
+    alpha = raw2alpha(raw_densities + noise, dists)  # [N_rays, N_samples]
 
     # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
     weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1)), 1.-alpha + 1e-10], -1), -1)[:, :-1]
@@ -578,11 +579,10 @@ def render_rays(ray_batch,
 
     node_features, node_ids = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
     print(node_features.shape)
-    print(node_features[...,0].shape)
-    raise ValueError
     # print(features_at_intersections)
     # new_pts = get_features_from_rays(pts)
-    raw = network_query_fn(node_features, viewdirs, network_fn)
+    densities = node_features[..., 0]
+    raw = network_query_fn(node_features[...,1:], viewdirs, network_fn)
     # print(corners[500])
     print(pts.shape)
     
@@ -622,7 +622,7 @@ def render_rays(ray_batch,
     print("N IMPORTANCE IS ", N_importance)
 
 
-    rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, raw_rgb, raw_alpha = raw2outputs(raw, tree, z_vals, node_ids, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+    rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, raw_rgb, raw_alpha = raw2outputs(raw, densities, z_vals, node_ids, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
     # raise ValueError
 
     # rgb_map [num_rays, 3]
