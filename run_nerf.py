@@ -557,7 +557,8 @@ def render_rays(ray_batch,
             tmin = torch.max(tmin, torch.min(t1, t2))
             tmax = torch.min(tmax, torch.max(t1, t2))
         return tmin, tmax
-
+        
+    raise ValueError
     # invdirs = 1.0 / (rays_d + 1e-9)
     # t, tmax = dda_unit(rays_o, invdirs)
     # print(tmax-t)
@@ -615,7 +616,8 @@ def render_rays(ray_batch,
     # [0, 0, 0, 2, 2, 2, 2]
     # [feature[0], 0, 0, 2, 2, 2, 2]
     # [network(feature[0]), network(feature[0]), network(feature[0]), network(feature[2])]
-    # 
+    # [1, 2, 3, 00, 0 ,0]
+    # [1, 2, 3, 4, 00, 0 ,0]
 
 
     print("Raw output shape:", raw.shape) #[1024, 64, 4] => [1024, 64, 3]
