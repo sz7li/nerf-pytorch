@@ -563,6 +563,7 @@ def render_rays(ray_batch,
     # origins = tree.world2tree(rays_o)
     print(origins)
     t, tmax = dda_unit(origins, invdirs)
+    t, tmax = t.cpu().numpy(), tmax.cpu().numpy()
     # print(t.shape, tmax.shape)
     print(t, tmax)
     np.savez("t.npz", tmax=tmax, tmin=t)
