@@ -559,7 +559,8 @@ def render_rays(ray_batch,
         return tmin, tmax
 
     invdirs = 1.0 / (rays_d + 1e-9)
-    origins = tree.world2tree(rays_o)
+    origins = rays_o
+    # origins = tree.world2tree(rays_o)
     print(origins)
     t, tmax = dda_unit(origins, invdirs)
     # print(t.shape, tmax.shape)
