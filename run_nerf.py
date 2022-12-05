@@ -557,10 +557,12 @@ def render_rays(ray_batch,
             tmin = torch.max(tmin, torch.min(t1, t2))
             tmax = torch.min(tmax, torch.max(t1, t2))
         return tmin, tmax
-        
+
+    invdirs = 1.0 / (rays_d + 1e-9)
+    t, tmax = dda_unit(rays_o, invdirs)
+    print(t.shape, tmax.shape)
+    print(t, tmax)
     raise ValueError
-    # invdirs = 1.0 / (rays_d + 1e-9)
-    # t, tmax = dda_unit(rays_o, invdirs)
     # print(tmax-t)
 
     # fig = plt.figure(figsize=(12, 8))
