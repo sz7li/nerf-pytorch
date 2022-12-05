@@ -563,7 +563,7 @@ def render_rays(ray_batch,
     print(origins)
     t, tmax = dda_unit(origins, invdirs)
     # print(t.shape, tmax.shape)
-    # print(t, tmax)
+    print(t, tmax)
     raise ValueError
     # print(tmax-t)
 
