@@ -564,6 +564,8 @@ def render_rays(ray_batch,
     t, tmax = dda_unit(origins, invdirs)
     # print(t.shape, tmax.shape)
     print(t, tmax)
+    np.savez("t.npz", tmax=tmax, tmin=t)
+
     raise ValueError
     # print(tmax-t)
 
