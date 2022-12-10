@@ -591,7 +591,7 @@ def render_rays(ray_batch,
         print(tree_features[:, None, ...].shape)
         
         rgba = network_query_fn(tree_features[:, None, ...], viewdirs, network_fn)
-        print(rgba.shape)
+        print(rgba[:10])
         raise ValueError
         cube_sz = treeview.lengths_local
         pos_t = (pos - treeview.corners_local) / cube_sz[:, None]
