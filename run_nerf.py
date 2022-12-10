@@ -601,10 +601,12 @@ def render_rays(ray_batch,
         print("delta_t", delta_t, delta_t.shape)
         att = torch.exp(-F.relu(raw[..., -1]) * delta_t)
         weight = light_intensity[good_indices] * (1.0 - att)
-        print(weight)
+        print(weight.shape)
+
         rgb = torch.sigmoid(raw[:, :-1])
-    
-        rgb = weight[:, None] * rgb[:, :3]
+
+        print(rgb.shape)
+        rgb = weight[:, None] * rgb
         
         raise ValueError
 
