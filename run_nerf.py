@@ -591,8 +591,6 @@ def render_rays(ray_batch,
         print(tree_features[:, None, ...].shape)
         
         rgba = network_query_fn(tree_features[:, None, ...], viewdirs, network_fn)
-        print(rgba[:10])
-        raise ValueError
         cube_sz = treeview.lengths_local
         pos_t = (pos - treeview.corners_local) / cube_sz[:, None]
         treeview = None
@@ -602,6 +600,8 @@ def render_rays(ray_batch,
         delta_t = (subcube_tmax - subcube_tmin) * cube_sz + step_size
         print("delta_t", delta_t, delta_t.shape)
         att = torch.exp(-F.relu(rgba[..., -1]) * delta_t)
+        print(att)
+        raise ValueError
 
         
     # print(t.shape, tmax.shape)
