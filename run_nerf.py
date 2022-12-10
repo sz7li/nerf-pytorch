@@ -412,7 +412,7 @@ def raw2outputs(raw, densities, z_vals, node_ids, rays_d, raw_noise_std=0, white
     dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
 
     rgb = torch.sigmoid(raw[...,:3])  # [N_rays, N_samples, 3]
-
+    
 
     print("RGB values: ", rgb.shape)
     print("RAW DENSITIES ", densities.shape)
@@ -444,6 +444,7 @@ def raw2outputs(raw, densities, z_vals, node_ids, rays_d, raw_noise_std=0, white
 
     print("Depth map", depth_map)
     print("Disp map", disp_map)
+    {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
 
     return rgb_map, disp_map, acc_map, weights, depth_map, densities, rgb, alpha
 
@@ -527,11 +528,10 @@ def render_rays(ray_batch,
         print(z_vals.shape)
 
     z_vals_numpy = z_vals.detach().cpu().numpy()
-    np.savez("z_vals.npz", p=z_vals_numpy)
-    np.savez("rays_o_example.npz", p=rays_o.detach().cpu().numpy())
-    np.savez("rays_d_example.npz", p=rays_d.detach().cpu().numpy())
+    # np.savez("z_vals.npz", p=z_vals_numpy)
+    # np.savez("rays_o_example.npz", p=rays_o.detach().cpu().numpy())
+    # np.savez("rays_d_example.npz", p=rays_d.detach().cpu().numpy())
     pts = rays_o[...,None,:] + rays_d[...,None,:] * z_vals[...,:,None] # [N_rays, N_samples, 3]
-    raise ValueError
 
 #     raw = run_network(pts)
     print("Line 386")
