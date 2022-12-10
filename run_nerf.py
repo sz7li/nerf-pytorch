@@ -628,7 +628,6 @@ def render_rays(ray_batch,
 
         # print(out_rgb)
         out_rgb[good_indices] += rgb
-        out_raw[good_indices] += raw
 
         # out_depth[good_indices] += depth
         # print(out_rgb)
@@ -753,7 +752,7 @@ def render_rays(ray_batch,
     # ret = {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map} \\ original
     ret = {'rgb_map' : out_rgb, 'disp_map' : torch.randn(out_rgb.shape[0]), 'acc_map' : torch.randn(out_rgb.shape[0])}
     if retraw:
-        ret['raw'] = raw
+        ret['raw'] = torch.randn(1024, 128, 4)
 
     if False:
     # if N_importance > 0:
