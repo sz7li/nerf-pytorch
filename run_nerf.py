@@ -599,7 +599,7 @@ def render_rays(ray_batch,
         print("Subcubes delta ", (subcube_tmax - subcube_tmin))
         delta_t = (subcube_tmax - subcube_tmin) * cube_sz + step_size
         print("delta_t", delta_t, delta_t.shape)
-        print(raw.shape)
+        print(raw[:10])
         print(raw[..., -1][:10])
         print(delta_t[:10])
         att = torch.exp(-F.relu(raw[..., -1]) * delta_t) # att should be [1024]
