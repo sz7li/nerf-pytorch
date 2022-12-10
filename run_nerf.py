@@ -590,7 +590,7 @@ def render_rays(ray_batch,
 
         print(tree_features[:, None, ...].shape)
         
-        rgba = network_query_fn(tree_features[:, None, ...], viewdirs, network_fn)
+        raw = network_query_fn(tree_features[:, None, ...], viewdirs, network_fn)
         cube_sz = treeview.lengths_local
         pos_t = (pos - treeview.corners_local) / cube_sz[:, None]
         treeview = None
@@ -599,8 +599,13 @@ def render_rays(ray_batch,
         print("Subcubes delta ", (subcube_tmax - subcube_tmin))
         delta_t = (subcube_tmax - subcube_tmin) * cube_sz + step_size
         print("delta_t", delta_t, delta_t.shape)
-        att = torch.exp(-F.relu(rgba[..., -1]) * delta_t)
-        print(att)
+        att = torch.exp(-F.relu(raw[..., -1]) * delta_t)
+        weight = light_intensity[good_indices] * (1.0 - att)
+        print(weight)
+        rgb = torch.sigmoid(raw[:, :-1])
+    
+        rgb = weight[:, None] * rgb[:, :3]
+        
         raise ValueError
 
         
