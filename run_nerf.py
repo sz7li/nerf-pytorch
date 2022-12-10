@@ -628,10 +628,11 @@ def render_rays(ray_batch,
         invdirs = invdirs[mask]
         t = t[mask]
         tmax = tmax[mask]
+        counter += 1
 
     if white_bkgd:
         out_rgb += light_intensity * 1.0
-        
+
     raise ValueError
 
     rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
