@@ -445,7 +445,7 @@ def raw2outputs(raw, densities, z_vals, node_ids, rays_d, raw_noise_std=0, white
 
     print("Depth map", depth_map)
     print("Disp map", disp_map)
-    {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
+    # {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
 
     return rgb_map, disp_map, acc_map, weights, depth_map, densities, rgb, alpha
 
@@ -620,8 +620,28 @@ def render_rays(ray_batch,
         print(light_intensity)
         light_intensity[good_indices] *= att
         print(light_intensity)
+        t += delta_t
+        mask = t < tmax
+        good_indices = good_indices[mask]
+        origins = origins[mask]
+        dirs = dirs[mask]
+        invdirs = invdirs[mask]
+        t = t[mask]
+        tmax = tmax[mask]
 
-        raise ValueError
+    if white_bkgd:
+        out_rgb += light_intensity * 1.0
+
+    rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
+
+    depth_map = torch.sum(weights * z_vals, -1)
+    disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
+    acc_map = torch.sum(weights, -1)
+
+    if white_bkgd:
+        rgb_map = rgb_map + (1.-acc_map[...,None])
+
+    raise ValueError
 
         
     # print(t.shape, tmax.shape)
@@ -896,6 +916,7 @@ def train():
         far = 6.
 
         if args.white_bkgd:
+            print("WHITE BKGD")
             images = images[...,:3]*images[...,-1:] + (1.-images[...,-1:])
         else:
             images = images[...,:3]
