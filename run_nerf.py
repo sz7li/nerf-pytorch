@@ -632,7 +632,8 @@ def render_rays(ray_batch,
         counter += 1
 
     print(light_intensity.shape)
-    print(out_rgb)
+    print("OUT RGB")
+    print(out_rgb[:50])
     if white_bkgd:
         out_rgb += light_intensity * 1.0
 
