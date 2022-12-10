@@ -635,8 +635,8 @@ def render_rays(ray_batch,
     print("OUT RGB")
     print(out_rgb[:50])
     if white_bkgd:
-        out_rgb += light_intensity * 1.0
-
+        out_rgb += light_intensity.repeat(3, 1).T * 1.0
+    print(out_rgb[:50])
     raise ValueError
 
     rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
