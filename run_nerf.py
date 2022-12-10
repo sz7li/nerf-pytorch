@@ -600,6 +600,8 @@ def render_rays(ray_batch,
         delta_t = (subcube_tmax - subcube_tmin) * cube_sz + step_size
         print("delta_t", delta_t, delta_t.shape)
         att = torch.exp(-F.relu(raw[..., -1]) * delta_t)
+        print(raw.shape)
+        # att = torch.exp(- delta_t * torch.relu(rgba[..., -1]) * delta_scale[good_indices])
         print(att.shape)
         weight = light_intensity[good_indices] * (1.0 - att)
         print(weight.shape)
