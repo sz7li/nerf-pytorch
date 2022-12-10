@@ -119,7 +119,7 @@ class NeRF(nn.Module):
                 h = torch.cat([input_pts, h], -1)
 
         if self.use_viewdirs:
-            # alpha = self.alpha_linear(h)
+            alpha = self.alpha_linear(h)
             feature = self.feature_linear(h)
             h = torch.cat([feature, input_views], -1)
         
@@ -128,8 +128,8 @@ class NeRF(nn.Module):
                 h = F.relu(h)
 
             rgb = self.rgb_linear(h)
-            # outputs = torch.cat([rgb, alpha], -1)
-            outputs = rgb
+            outputs = torch.cat([rgb, alpha], -1)
+            # outputs = rgb
         else:
             outputs = self.output_linear(h)
 
