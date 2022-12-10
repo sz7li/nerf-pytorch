@@ -614,8 +614,12 @@ def render_rays(ray_batch,
         rgb = weight[:, None] * rgb
         print(rgb.shape)
 
+        print(out_rgb)
         out_rgb[good_indices] += rgb
+        print(out_rgb)
+        print(light_intensity)
         light_intensity[good_indices] *= att
+        print(light_intensity)
 
         raise ValueError
 
