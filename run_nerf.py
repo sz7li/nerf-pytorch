@@ -12,6 +12,7 @@ from tqdm import tqdm, trange
 import scipy
 import itertools as it
 from collections import namedtuple
+from svox.helpers import _get_c_extension, LocalIndex, DataFormat
 
 
 import matplotlib.pyplot as plt
@@ -272,7 +273,7 @@ def create_nerf(args, tree): # add tree
     """Instantiate NeRF's MLP model.
     """
     # embed_fn, input_ch = get_embedder(args.multires, 16, args.i_embed)
-    input_ch = 15 #// HARDCODE to feature size
+    input_ch = 16 #// HARDCODE to feature size
     input_ch_views = 0
     embeddirs_fn = None
     if args.use_viewdirs:
@@ -562,15 +563,47 @@ def render_rays(ray_batch,
 
     invdirs = 1.0 / (rays_d + 1e-9)
     origins = rays_o
-    # origins = tree.world2tree(rays_o)
-    print(origins)
-    t, tmax = dda_unit(origins, invdirs)
-    t, tmax = t.cpu().numpy(), tmax.cpu().numpy()
-    # print(t.shape, tmax.shape)
-    print(t, tmax)
-    np.savez("t.npz", tmax=tmax, tmin=t)
+    
+    origins, dirs = tree.world2tree(rays_o), rays_d
 
-    raise ValueError
+    B = dirs.size(0)
+    dirs /= torch.norm(dirs, dim=-1, keepdim=True)
+
+    invdirs = 1.0 / (dirs + 1e-9)
+    t, tmax = dda_unit(origins, invdirs)
+
+    step_size = 1e-3
+    light_intensity = torch.ones(B, device=origins.device)
+    out_rgb = torch.zeros((B, 3), device=origins.device)
+
+    good_indices = torch.arange(B, device=origins.device)
+    delta_scale = (dirs / tree.invradius[None]).norm(dim=1)
+
+
+    counter = 0
+    while good_indices.numel() > 0:
+        
+        pos = origins + t[:, None] * dirs
+        treeview = tree[LocalIndex(pos)]
+        tree_features = treeview.values
+        print(f"Iteration {counter} with {tree_features.shape} features")
+        
+        rgba = network_query_fn(tree_features, viewdirs, network_fn)
+        print(rgba.shape)
+        raise ValueError
+        cube_sz = treeview.lengths_local
+        pos_t = (pos - treeview.corners_local) / cube_sz[:, None]
+        treeview = None
+        subcube_tmin, subcube_tmax = dda_unit(pos_t, invdirs)
+        print("Subcubes", subcube_tmin[:10], subcube_tmax[:10])
+        print("Subcubes delta ", (subcube_tmax - subcube_tmin))
+        delta_t = (subcube_tmax - subcube_tmin) * cube_sz + step_size
+        print("delta_t", delta_t, delta_t.shape)
+        att = torch.exp(-F.relu(rgba[..., -1]) * delta_t)
+
+        
+    # print(t.shape, tmax.shape)
+
     # print(tmax-t)
 
     # fig = plt.figure(figsize=(12, 8))
