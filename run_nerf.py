@@ -606,16 +606,16 @@ def render_rays(ray_batch,
         pos_t = (pos - treeview.corners_local) / cube_sz[:, None]
         treeview = None
         subcube_tmin, subcube_tmax = dda_unit(pos_t, invdirs)
-        print("Subcubes", subcube_tmin[:10], subcube_tmax[:10])
-        print("Subcubes delta ", (subcube_tmax - subcube_tmin))
+        # print("Subcubes", subcube_tmin[:10], subcube_tmax[:10])
+        # print("Subcubes delta ", (subcube_tmax - subcube_tmin))
         delta_t = (subcube_tmax - subcube_tmin) * cube_sz + step_size
-        print("delta_t", delta_t, delta_t.shape)
+        print("delta_t", delta_t[:10], delta_t.shape)
         att = torch.exp(-F.relu(torch.squeeze(raw[..., -1])) * delta_t) # att should be [1024]
         print("ATT shape ", att.shape)
         # att = torch.exp(- delta_t * torch.relu(rgba[..., -1]) * delta_scale[good_indices])
         weight = light_intensity[good_indices] * (1.0 - att) # weight should be (at most) [1024]
         
-        rgb = torch.sigmoid(torch.squeeze(raw)[:, :-1]) # squeeze [1024, 1, 4] => [1024, 4] and take first three
+        rgb = torch.sigmoid(torch.squeeze(raw, dim=1)[:, :-1]) # squeeze only 2nd dimension [1024, 1, 4] => [1024, 4] and take first three
         # depth = weight * (t + delta_t)
         # print(t + delta_t)
         # print(depth[depth > 0])
