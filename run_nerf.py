@@ -583,7 +583,7 @@ def render_rays(ray_batch,
     step_size = 1e-3
     light_intensity = torch.ones(B, device=origins.device)
     out_rgb = torch.zeros((B, 3), device=origins.device)
-    out_depth = torch.zeros((B, 3), device=origins.device)
+    out_depth = torch.zeros((B), device=origins.device)
     
 
     good_indices = torch.arange(B, device=origins.device)
@@ -612,16 +612,20 @@ def render_rays(ray_batch,
         att = torch.exp(-F.relu(torch.squeeze(raw[..., -1])) * delta_t) # att should be [1024]
         print("ATT shape ", att.shape)
         # att = torch.exp(- delta_t * torch.relu(rgba[..., -1]) * delta_scale[good_indices])
-        weight = light_intensity[good_indices] * (1.0 - att) # weight should be [1024]
+        weight = light_intensity[good_indices] * (1.0 - att) # weight should be (at most) [1024]
         print(weight.shape)
         rgb = torch.sigmoid(torch.squeeze(raw)[:, :-1]) # squeeze [1024, 1, 4] => [1024, 4] and take first three
-
+        depth = weight * t
+        out_depth[good_indices] += depth
+        raise ValueError
         # print(rgb.shape)
         rgb = weight[:, None] * rgb
         # print(rgb.shape)
 
         # print(out_rgb)
         out_rgb[good_indices] += rgb
+
+        out_depth[good_indices] += depth
         # print(out_rgb)
         # print(light_intensity)
         light_intensity[good_indices] *= att
