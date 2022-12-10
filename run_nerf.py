@@ -616,9 +616,9 @@ def render_rays(ray_batch,
         print(weight.shape)
         rgb = torch.sigmoid(torch.squeeze(raw)[:, :-1]) # squeeze [1024, 1, 4] => [1024, 4] and take first three
         depth = weight * t
-        print(depth)
+        print(depth[depth > 0])
         out_depth[good_indices] += depth
-        print(out_depth)
+        print(out_depth[out_depth > 0])
         raise ValueError
         # print(rgb.shape)
         rgb = weight[:, None] * rgb
