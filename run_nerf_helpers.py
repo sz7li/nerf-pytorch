@@ -120,6 +120,7 @@ class NeRF(nn.Module):
 
         if self.use_viewdirs:
             alpha = self.alpha_linear(h)
+            print(alpha)
             feature = self.feature_linear(h)
             h = torch.cat([feature, input_views], -1)
         
