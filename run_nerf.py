@@ -437,8 +437,6 @@ def raw2outputs(raw, densities, z_vals, node_ids, rays_d, raw_noise_std=0, white
     rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
 
     depth_map = torch.sum(weights * z_vals, -1)
-    print(weights.shape, z_vals.shape)
-    raise ValueError
     disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
     acc_map = torch.sum(weights, -1)
 
@@ -548,10 +546,10 @@ def render_rays(ray_batch,
     print(node_features.shape)
     # print(features_at_intersections)
     # new_pts = get_features_from_rays(pts)
-    densities = node_features[..., 0]
+    # densities = node_features[..., 0]
 
-    raw = network_query_fn(node_features[...,1:], viewdirs, network_fn)
-    rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, raw_rgb, raw_alpha = raw2outputs(raw, densities, z_vals, node_ids, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+    # raw = network_query_fn(node_features[...,1:], viewdirs, network_fn)
+    # rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, raw_rgb, raw_alpha = raw2outputs(raw, densities, z_vals, node_ids, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
 
     def dda_unit(cen, invdir):
         """
