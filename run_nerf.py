@@ -604,13 +604,11 @@ def render_rays(ray_batch,
         print(raw[..., -1][:10])
         print(delta_t[:10])
         att = torch.exp(-F.relu(torch.squeeze(raw[..., -1])) * delta_t) # att should be [1024]
-        print(att[:10])
         print("ATT shape ", att.shape)
         # att = torch.exp(- delta_t * torch.relu(rgba[..., -1]) * delta_scale[good_indices])
         weight = light_intensity[good_indices] * (1.0 - att) # weight should be [1024]
         print(weight.shape)
-
-        rgb = torch.sigmoid(raw[:, :-1])
+        rgb = torch.sigmoid(torch.squeeze(raw)[:, :-1]) # squeeze [1024, 1, 4] => [1024, 4] and take first three
 
         print(rgb.shape)
         rgb = weight[:, None] * rgb

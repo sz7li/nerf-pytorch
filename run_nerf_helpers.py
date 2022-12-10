@@ -119,10 +119,10 @@ class NeRF(nn.Module):
                 h = torch.cat([input_pts, h], -1)
 
         if self.use_viewdirs:
-            print("Alpha linear ", self.alpha_linear.weight.shape, self.alpha_linear.weight )
+            # print("Alpha linear ", self.alpha_linear.weight.shape, self.alpha_linear.weight )
             alpha = self.alpha_linear(h) # [1, 256]
-            print(h.shape, h) # [1024, 256] \\ the cols are similar
-            print("alpha", alpha)
+            # print(h.shape, h) # [1024, 256] \\ the cols are similar
+            # print("alpha", alpha)
             feature = self.feature_linear(h)
             h = torch.cat([feature, input_views], -1)
         
