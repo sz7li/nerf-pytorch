@@ -616,12 +616,12 @@ def render_rays(ray_batch,
         print(weight.shape)
         print(weight[50:105])
         rgb = torch.sigmoid(torch.squeeze(raw)[:, :-1]) # squeeze [1024, 1, 4] => [1024, 4] and take first three
-        depth = weight * (t + delta_t)
-        print(t + delta_t)
-        print(depth[depth > 0])
-        out_depth[good_indices] += depth
-        print(out_depth[out_depth > 0])
-        raise ValueError
+        # depth = weight * (t + delta_t)
+        # print(t + delta_t)
+        # print(depth[depth > 0])
+        # out_depth[good_indices] += depth
+        # print(out_depth[out_depth > 0])
+
         # print(rgb.shape)
         rgb = weight[:, None] * rgb
         # print(rgb.shape)
@@ -647,14 +647,13 @@ def render_rays(ray_batch,
 
     if white_bkgd:
         out_rgb += light_intensity.repeat(3, 1).T * 1.0
-    print(out_rgb.shape)
-    raise ValueError
+    
 
-    rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
+    # rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
 
-    depth_map = torch.sum(weights * z_vals, -1)
-    disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
-    acc_map = torch.sum(weights, -1)
+    # depth_map = torch.sum(weights * z_vals, -1)
+    # disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
+    # acc_map = torch.sum(weights, -1)
 
         
     # print(t.shape, tmax.shape)
@@ -692,8 +691,6 @@ def render_rays(ray_batch,
                                                                 netchunk=args.netchunk)
     '''
     
-
-    # raise ValueError
     # 
     # raw = network_query_fn(features_at_intersections, viewdirs, network_fn) # network_fn is model=NeRF(...)
     
@@ -721,7 +718,7 @@ def render_rays(ray_batch,
     print("Raw output shape:", raw.shape) #[1024, 64, 4] => [1024, 64, 3]
     print("N IMPORTANCE IS ", N_importance)
 
-    rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, raw_rgb, raw_alpha = raw2outputs(raw, densities, z_vals, node_ids, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+    # rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, raw_rgb, raw_alpha = raw2outputs(raw, densities, z_vals, node_ids, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
     # raise ValueError
 
     # rgb_map [num_rays, 3]
@@ -752,7 +749,8 @@ def render_rays(ray_batch,
         rgb_map, disp_map, acc_map, weights, depth_map, raw_densities, rgb, raw_alpha = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
         # set_values_for_tree(pts, raw_alpha, tree)
 
-    ret = {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
+    # ret = {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map} \\ original
+    ret = {'rgb_map' : out_rgb, 'disp_map' : torch.randn(out_rgb.shape[0]), 'acc_map' : torch.randn(out_rgb.shape[0])}
     if retraw:
         ret['raw'] = raw
 
