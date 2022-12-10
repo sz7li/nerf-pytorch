@@ -612,7 +612,7 @@ def render_rays(ray_batch,
 
         print(rgb.shape)
         rgb = weight[:, None] * rgb
-        
+        print(rgb.shape)
         raise ValueError
 
         
