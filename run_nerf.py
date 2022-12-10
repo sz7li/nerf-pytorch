@@ -613,8 +613,7 @@ def render_rays(ray_batch,
         print("ATT shape ", att.shape)
         # att = torch.exp(- delta_t * torch.relu(rgba[..., -1]) * delta_scale[good_indices])
         weight = light_intensity[good_indices] * (1.0 - att) # weight should be (at most) [1024]
-        print(weight.shape)
-        print(weight[50:105])
+        
         rgb = torch.sigmoid(torch.squeeze(raw)[:, :-1]) # squeeze [1024, 1, 4] => [1024, 4] and take first three
         # depth = weight * (t + delta_t)
         # print(t + delta_t)
@@ -629,7 +628,7 @@ def render_rays(ray_batch,
         # print(out_rgb)
         out_rgb[good_indices] += rgb
 
-        out_depth[good_indices] += depth
+        # out_depth[good_indices] += depth
         # print(out_rgb)
         # print(light_intensity)
         light_intensity[good_indices] *= att
@@ -675,14 +674,14 @@ def render_rays(ray_batch,
     # plt.savefig(f"ray_figures/batch_{global_batch_num}.png")
     # global_batch_num += 1
 
-    node_features, node_ids = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
-    print(node_features.shape)
+    # node_features, node_ids = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
+    # print(node_features.shape)
     # print(features_at_intersections)
     # new_pts = get_features_from_rays(pts)
-    densities = node_features[..., 0]
-    raw = network_query_fn(node_features[...,1:], viewdirs, network_fn)
+    # densities = node_features[..., 0]
+    # raw = network_query_fn(node_features[...,1:], viewdirs, network_fn)
     # print(corners[500])
-    print(pts.shape)
+    # print(pts.shape)
     
     '''
     network_query_fn = lambda inputs, viewdirs, network_fn : run_network(inputs, viewdirs, network_fn,
