@@ -875,7 +875,7 @@ def config_parser():
                         help='frequency of weight ckpt saving')
     parser.add_argument("--i_testset", type=int, default=10000, 
                         help='frequency of testset saving')
-    parser.add_argument("--i_video",   type=int, default=2500, 
+    parser.add_argument("--i_video",   type=int, default=250, 
                         help='frequency of render_poses video saving')
 
     return parser
@@ -1302,7 +1302,7 @@ def train():
             moviebase = os.path.join(basedir, expname, '{}_spiral_{:06d}_'.format(expname, i))
             imageio.mimwrite(moviebase + 'rgb.mp4', to8b(rgbs), fps=30, quality=8)
             imageio.mimwrite(moviebase + 'disp.mp4', to8b(disps / np.max(disps)), fps=30, quality=8)
-
+            raise ValueError
             # if args.use_viewdirs:
             #     render_kwargs_test['c2w_staticcam'] = render_poses[0][:3,:4]
             #     with torch.no_grad():
