@@ -626,6 +626,7 @@ def render_rays(ray_batch,
         origins = origins[mask]
         dirs = dirs[mask]
         invdirs = invdirs[mask]
+        viewdirs = viewdirs[mask]
         t = t[mask]
         tmax = tmax[mask]
         counter += 1
