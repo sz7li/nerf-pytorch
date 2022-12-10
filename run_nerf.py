@@ -542,8 +542,8 @@ def render_rays(ray_batch,
     print("pts and viewdirs dimensions ", pts.shape, viewdirs.shape)
 
     # get features from rays
-    node_features, node_ids = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
-    print(node_features.shape)
+    # node_features, node_ids = get_features_from_rays(pts, tree) # [batch_size, N_samples, tree.data_dims]
+    # print(node_features.shape)
     # print(features_at_intersections)
     # new_pts = get_features_from_rays(pts)
     # densities = node_features[..., 0]
@@ -648,6 +648,7 @@ def render_rays(ray_batch,
     if white_bkgd:
         out_rgb += light_intensity.repeat(3, 1).T * 1.0
     
+    print("Returning out_RGB ",  out_rgb[:25])
 
     # rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
 
