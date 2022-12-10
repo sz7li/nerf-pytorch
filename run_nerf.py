@@ -599,10 +599,6 @@ def render_rays(ray_batch,
         print("Subcubes delta ", (subcube_tmax - subcube_tmin))
         delta_t = (subcube_tmax - subcube_tmin) * cube_sz + step_size
         print("delta_t", delta_t, delta_t.shape)
-        print(raw.shape)
-        print(raw[:10])
-        print(raw[..., -1][:10])
-        print(delta_t[:10])
         att = torch.exp(-F.relu(torch.squeeze(raw[..., -1])) * delta_t) # att should be [1024]
         print("ATT shape ", att.shape)
         # att = torch.exp(- delta_t * torch.relu(rgba[..., -1]) * delta_scale[good_indices])
@@ -610,16 +606,16 @@ def render_rays(ray_batch,
         print(weight.shape)
         rgb = torch.sigmoid(torch.squeeze(raw)[:, :-1]) # squeeze [1024, 1, 4] => [1024, 4] and take first three
 
-        print(rgb.shape)
+        # print(rgb.shape)
         rgb = weight[:, None] * rgb
-        print(rgb.shape)
+        # print(rgb.shape)
 
-        print(out_rgb)
+        # print(out_rgb)
         out_rgb[good_indices] += rgb
-        print(out_rgb)
-        print(light_intensity)
+        # print(out_rgb)
+        # print(light_intensity)
         light_intensity[good_indices] *= att
-        print(light_intensity)
+        # print(light_intensity)
         t += delta_t
         mask = t < tmax
         good_indices = good_indices[mask]
@@ -631,12 +627,9 @@ def render_rays(ray_batch,
         tmax = tmax[mask]
         counter += 1
 
-    print(light_intensity.shape)
-    print("OUT RGB")
-    print(out_rgb[:50])
     if white_bkgd:
         out_rgb += light_intensity.repeat(3, 1).T * 1.0
-    print(out_rgb[:50])
+    print(out_rgb.shape)
     raise ValueError
 
     rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
