@@ -584,6 +584,7 @@ def render_rays(ray_batch,
     light_intensity = torch.ones(B, device=origins.device)
     out_rgb = torch.zeros((B, 3), device=origins.device)
     out_depth = torch.zeros((B), device=origins.device)
+    out_raw = torch.zeros((B, 4), device=origins.device)
     
 
     good_indices = torch.arange(B, device=origins.device)
@@ -627,6 +628,7 @@ def render_rays(ray_batch,
 
         # print(out_rgb)
         out_rgb[good_indices] += rgb
+        out_raw[good_indices] += raw
 
         # out_depth[good_indices] += depth
         # print(out_rgb)
