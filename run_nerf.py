@@ -588,7 +588,7 @@ def render_rays(ray_batch,
         tree_features = treeview.values
         print(f"Iteration {counter} with {tree_features.shape} features")
 
-        print(tree_features[..., None, ...].shape)
+        print(tree_features[:, None, ...].shape)
         
         rgba = network_query_fn(tree_features[..., None, ...], viewdirs, network_fn)
         print(rgba.shape)
