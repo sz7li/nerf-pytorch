@@ -614,7 +614,7 @@ def render_rays(ray_batch,
         # att = torch.exp(- delta_t * torch.relu(rgba[..., -1]) * delta_scale[good_indices])
         weight = light_intensity[good_indices] * (1.0 - att) # weight should be (at most) [1024]
         print(weight.shape)
-        print(weight[:25])
+        print(weight[50:105])
         rgb = torch.sigmoid(torch.squeeze(raw)[:, :-1]) # squeeze [1024, 1, 4] => [1024, 4] and take first three
         depth = weight * t
         print(depth[depth > 0])
