@@ -113,16 +113,15 @@ class NeRF(nn.Module):
         input_pts, input_views = torch.split(x, [self.input_ch, self.input_ch_views], dim=-1)
         h = input_pts
         for i, l in enumerate(self.pts_linears):
-            print(f"Enumerate {i}")
             h = self.pts_linears[i](h)
             h = F.relu(h)
             if i in self.skips:
                 h = torch.cat([input_pts, h], -1)
 
         if self.use_viewdirs:
-            print("Alpha linear ", self.alpha_linear.weight)
+            print("Alpha linear ", self.alpha_linear.weight.shape, self.alpha_linear.weight )
             alpha = self.alpha_linear(h)
-            print(h.shape, h)
+            print(h.shape, h) # [1024, 256]
             print("alpha", alpha)
             feature = self.feature_linear(h)
             h = torch.cat([feature, input_views], -1)
