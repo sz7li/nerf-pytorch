@@ -121,6 +121,7 @@ class NeRF(nn.Module):
         if self.use_viewdirs:
             print("Alpha linear ", self.alpha_linear.weight)
             alpha = self.alpha_linear(h)
+            print(h.weight)
             print("alpha", alpha)
             feature = self.feature_linear(h)
             h = torch.cat([feature, input_views], -1)
