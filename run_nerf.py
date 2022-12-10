@@ -601,7 +601,7 @@ def render_rays(ray_batch,
         print("delta_t", delta_t, delta_t.shape)
         print(raw[..., -1][:10])
         print(delta_t[:10])
-        att = torch.exp(-F.relu(raw[..., -1]) * delta_t[:, None]) # att should be [1024]
+        att = torch.exp(-F.relu(raw[..., -1]) * delta_t) # att should be [1024]
         print(att[:10])
         print("ATT shape ", att.shape)
         # att = torch.exp(- delta_t * torch.relu(rgba[..., -1]) * delta_scale[good_indices])
