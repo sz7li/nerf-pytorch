@@ -588,7 +588,7 @@ def render_rays(ray_batch,
         tree_features = treeview.values
         print(f"Iteration {counter} with {tree_features.shape} features")
         
-        rgba = network_query_fn(tree_features, viewdirs, network_fn)
+        rgba = network_query_fn(tree_features[..., None, ...], viewdirs, network_fn)
         print(rgba.shape)
         raise ValueError
         cube_sz = treeview.lengths_local
