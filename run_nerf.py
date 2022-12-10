@@ -599,11 +599,12 @@ def render_rays(ray_batch,
         print("Subcubes delta ", (subcube_tmax - subcube_tmin))
         delta_t = (subcube_tmax - subcube_tmin) * cube_sz + step_size
         print("delta_t", delta_t, delta_t.shape)
-        att = torch.exp(-F.relu(raw[..., -1]) * delta_t[:, None])
-        print(raw[..., -1].shape)
+        print(raw[..., -1][:10])
+        print(delta_t[:10])
+        att = torch.exp(-F.relu(raw[..., -1]) * delta_t[:, None]) # att should be [1024]
         print("ATT shape ", att.shape)
         # att = torch.exp(- delta_t * torch.relu(rgba[..., -1]) * delta_scale[good_indices])
-        weight = light_intensity[good_indices] * (1.0 - att)
+        weight = light_intensity[good_indices] * (1.0 - att) # weight should be [1024]
         print(weight.shape)
 
         rgb = torch.sigmoid(raw[:, :-1])
