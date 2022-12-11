@@ -31,7 +31,7 @@ DEBUG = False
 Rays = namedtuple('Rays', ["origins", "dirs", "viewdirs"])
 
 
-tree_file_path = 'tree_12_10'
+tree_file_path = 'tree_12_11'
 global_batch_num = 0
 
 def set_values_for_tree(pts, alpha, tree):
