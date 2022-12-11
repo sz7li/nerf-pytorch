@@ -1107,7 +1107,7 @@ def train():
             # alpha = raw2alpha(raw[...,3] + 0., dists)  # [N_rays, N_samples]
 
             approx_delta = 2.0 / len(tree.values)
-            alpha_thresh = 0.01
+            alpha_thresh = 0.005
 
             sigma_thresh = -np.log(1.0 - alpha_thresh) / approx_delta
 
@@ -1131,7 +1131,6 @@ def train():
             print("Tree refined from ", prev, len(tree.values))
 
             tree.save(f"{tree_file_path}/tree_iter_{i}", shrink=True, compress=True)
-
 
             for k, v in optimizer.param_groups[0].items():
                 if k != 'params':
