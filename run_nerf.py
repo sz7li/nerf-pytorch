@@ -597,41 +597,22 @@ def render_rays(ray_batch,
         pos = origins + t[:, None] * dirs
         treeview = tree[LocalIndex(pos)]
         tree_features = treeview.values
-        print(f"Iteration {counter} with {tree_features.shape} features")
         
         raw = network_query_fn(tree_features[:, None, ...], viewdirs, network_fn) # transform tree features from [1024, 16] => [1024, 1, 16]
         cube_sz = treeview.lengths_local
         pos_t = (pos - treeview.corners_local) / cube_sz[:, None]
         treeview = None
         subcube_tmin, subcube_tmax = dda_unit(pos_t, invdirs)
-        # print("Subcubes", subcube_tmin[:10], subcube_tmax[:10])
-        # print("Subcubes delta ", (subcube_tmax - subcube_tmin))
         delta_t = (subcube_tmax - subcube_tmin) * cube_sz + step_size
-        print("delta_t", delta_t[:10], delta_t.shape)
         att = torch.exp(-F.relu(tree_features[:, 0]) * delta_t) # att should be [1024]
-        print("ATT shape ", att.shape)
-        # att = torch.exp(- delta_t * torch.relu(rgba[..., -1]) * delta_scale[good_indices])
         weight = light_intensity[good_indices] * (1.0 - att) # weight should be (at most) [1024]
         
         rgb = torch.sigmoid(torch.squeeze(raw, dim=1)[:, :-1]) # squeeze only 2nd dimension [1024, 1, 4] => [1024, 4] and take first three
-        # depth = weight * (t + delta_t)
-        # print(t + delta_t)
-        # print(depth[depth > 0])
-        # out_depth[good_indices] += depth
-        # print(out_depth[out_depth > 0])
-
-        # print(rgb.shape)
+        
         rgb = weight[:, None] * rgb
-        # print(rgb.shape)
 
-        # print(out_rgb)
         out_rgb[good_indices] += rgb
-
-        # out_depth[good_indices] += depth
-        # print(out_rgb)
-        # print(light_intensity)
         light_intensity[good_indices] *= att
-        # print(light_intensity)
         t += delta_t
         mask = t < tmax
         good_indices = good_indices[mask]
@@ -1014,7 +995,7 @@ def train():
     radius = np.sqrt(np.sum((bbox[0] - bbox[1]) ** 2) / 2) / 2
     # Create tree model
     tree = create_tree(center, radius)
-    for i in range(2):
+    for i in range(3):
         tree.refine()
     tree.uniform_()
     print("Tree created with size using center and radius ", len(tree.values), center, radius)
