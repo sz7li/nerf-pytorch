@@ -598,8 +598,6 @@ def render_rays(ray_batch,
         treeview = tree[LocalIndex(pos)]
         tree_features = treeview.values
         print(f"Iteration {counter} with {tree_features.shape} features")
-
-        print(tree_features[:, None, ...].shape)
         
         raw = network_query_fn(tree_features[:, None, ...], viewdirs, network_fn) # transform tree features from [1024, 16] => [1024, 1, 16]
         cube_sz = treeview.lengths_local
@@ -610,7 +608,7 @@ def render_rays(ray_batch,
         # print("Subcubes delta ", (subcube_tmax - subcube_tmin))
         delta_t = (subcube_tmax - subcube_tmin) * cube_sz + step_size
         print("delta_t", delta_t[:10], delta_t.shape)
-        att = torch.exp(-F.relu(torch.squeeze(raw[..., -1])) * delta_t) # att should be [1024]
+        att = torch.exp(-F.relu(tree_features[:, 0]) * delta_t) # att should be [1024]
         print("ATT shape ", att.shape)
         # att = torch.exp(- delta_t * torch.relu(rgba[..., -1]) * delta_scale[good_indices])
         weight = light_intensity[good_indices] * (1.0 - att) # weight should be (at most) [1024]
