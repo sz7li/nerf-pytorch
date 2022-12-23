@@ -31,7 +31,7 @@ DEBUG = False
 Rays = namedtuple('Rays', ["origins", "dirs", "viewdirs"])
 
 
-tree_file_path = 'tree_12_10'
+tree_file_path = 'tree_12_22'
 global_batch_num = 0
 
 def set_values_for_tree(pts, alpha, tree):
@@ -987,7 +987,6 @@ def train():
     print("BBOX: ", bbox)
 
     temp_pose = poses[0]
-    raise ValueError
 
     # save points
     # np.savez("positions_mic.npz", p=p)
@@ -996,6 +995,7 @@ def train():
     radius = np.sqrt(np.sum((bbox[0] - bbox[1]) ** 2) / 2) / 2
     # Create tree model
     tree = create_tree(center, radius)
+    raise ValueError
     for i in range(3):
         tree.refine()
     tree.uniform_()
