@@ -573,6 +573,8 @@ def render_rays(ray_batch,
     
     origins = rays_o
     dirs = rays_d
+    print("Torch version CUDA")
+    print(torch.version.cuda)
 
     ts = tree.ray_intersections(origins, dirs, step_size=1e-3, sigma_thresh=0, stop_thresh=-10, out_dim=128)
 
