@@ -570,6 +570,13 @@ def render_rays(ray_batch,
             tmin = torch.max(tmin, torch.min(t1, t2))
             tmax = torch.min(tmax, torch.max(t1, t2))
         return tmin, tmax
+    
+    origins = rays_o
+    dirs = rays_d
+
+    ts = tree.ray_intersections(origins, dirs, step_size=1e-3, sigma_thresh=0, stop_thresh=-10, out_dim=128)
+
+    raise ValueError
 
     invdirs = 1.0 / (rays_d + 1e-9)
     origins = rays_o
@@ -997,7 +1004,6 @@ def train():
     radius = np.sqrt(np.sum((bbox[0] - bbox[1]) ** 2) / 2) / 2
     # Create tree model
     tree = create_tree(center, radius)
-    raise ValueError
     print("Tree created with size using center and radius ", len(tree.values), center, radius)
     # print(tree.values[0])
     tree.save(f"{tree_file_path}/test_tree", shrink=True, compress=True)
