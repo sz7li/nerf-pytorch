@@ -258,11 +258,14 @@ def create_tree(center, radius):
                   N=2, device="cpu",
                   init_refine=0, depth_limit=10,
                   extra_data=None)
-    # tree.to("cuda")
     # for i in range(8):
     #     tree[i].refine()
+    for i in range(3):
+        tree.refine()
+    tree.uniform_()
     print("CREATED TREE: ", len(tree))
     print(device)
+    tree.to("cuda")
     return tree
 
 
@@ -285,7 +288,6 @@ def create_nerf(args, tree): # add tree
                  input_ch=input_ch, output_ch=output_ch, skips=skips,
                  input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device)
     
-    tree.to('cuda')
     print("Created model with ", [i.shape for i in (model.parameters())])
     print(model.parameters())
 
@@ -996,9 +998,6 @@ def train():
     # Create tree model
     tree = create_tree(center, radius)
     raise ValueError
-    for i in range(3):
-        tree.refine()
-    tree.uniform_()
     print("Tree created with size using center and radius ", len(tree.values), center, radius)
     # print(tree.values[0])
     tree.save(f"{tree_file_path}/test_tree", shrink=True, compress=True)
