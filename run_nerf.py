@@ -31,7 +31,7 @@ DEBUG = False
 Rays = namedtuple('Rays', ["origins", "dirs", "viewdirs"])
 
 
-tree_file_path = 'tree_12_11'
+tree_file_path = 'tree_12_10'
 global_batch_num = 0
 
 def set_values_for_tree(pts, alpha, tree):
@@ -987,6 +987,7 @@ def train():
     print("BBOX: ", bbox)
 
     temp_pose = poses[0]
+    raise ValueError
 
     # save points
     # np.savez("positions_mic.npz", p=p)
@@ -1107,7 +1108,7 @@ def train():
             # alpha = raw2alpha(raw[...,3] + 0., dists)  # [N_rays, N_samples]
 
             approx_delta = 2.0 / len(tree.values)
-            alpha_thresh = 0.005
+            alpha_thresh = 0.01
 
             sigma_thresh = -np.log(1.0 - alpha_thresh) / approx_delta
 
@@ -1131,6 +1132,7 @@ def train():
             print("Tree refined from ", prev, len(tree.values))
 
             tree.save(f"{tree_file_path}/tree_iter_{i}", shrink=True, compress=True)
+
 
             for k, v in optimizer.param_groups[0].items():
                 if k != 'params':
